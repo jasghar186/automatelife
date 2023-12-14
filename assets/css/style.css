@@ -1,0 +1,275 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap");
+/** Utility Classes ******************/
+.font-roboto {
+  font-family: "Roboto", sans-serif;
+}
+
+.text-primary-admin {
+  color: #F97D03 !important;
+}
+
+.text-tabs {
+  color: rgb(68, 68, 68);
+}
+
+.para-color {
+  color: #3c434a;
+}
+
+.bg-primary-user {
+  background-color: #F97D03;
+}
+
+.bg-secondary-user {
+  background-color: #111;
+}
+
+.text-secondary-user {
+  color: #111;
+}
+
+.bg-grey-1-user {
+  background-color: #e5e4e4;
+}
+
+.text-grey-1-user {
+  color: #e5e4e4;
+}
+
+.comfortable-space {
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
+
+.compact-space {
+  margin-top: 24px;
+  margin-bottom: 48px;
+}
+
+.rounded-circle-px {
+  border-radius: 50px;
+}
+
+.appearance_page_automate-life-settings #wpcontent {
+  padding-left: 0;
+}
+
+.automate-life__optios {
+  background-color: #f0f0f1;
+}
+.automate-life__aside {
+  width: 30%;
+}
+.automate-life__aside .site-logo img {
+  max-width: 50%;
+}
+.automate-life__aside .nav-link.active {
+  font-weight: bold;
+}
+.automate-life__content-wrap {
+  width: 70%;
+}
+.automate-life__content-wrap .accordion-button:focus-visible,
+.automate-life__content-wrap .accordion-button:focus,
+.automate-life__content-wrap .accordion-button:focus-within,
+.automate-life__content-wrap .accordion-button {
+  outline: 0;
+  box-shadow: unset;
+}
+.automate-life__content-wrap .accordion-body {
+  background-color: #fafafa;
+}
+
+#automate_life_options_tabs {
+  padding-left: 2rem;
+  padding-right: 1rem;
+}
+
+.save-options {
+  padding: 5px 3rem;
+  background-color: #F97D03;
+  border: unset;
+  border-radius: 50px;
+  color: white;
+  text-transform: uppercase;
+}
+
+.color-picker-dropdown {
+  grid-template-columns: repeat(4, 30px);
+  grid-gap: 10px;
+}
+
+.site-color-block {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+
+input.values-toggle-checkbox {
+  appearance: none;
+  width: 45px;
+  height: 22px;
+  border: 1px solid #8c8f94;
+  border-radius: 4px;
+  background: #e1e1e1;
+  color: #50575e;
+  border-radius: 50px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+input.values-toggle-checkbox::before {
+  content: "";
+  width: 20px;
+  height: 100%;
+  border-radius: 50px;
+  background-color: white;
+  display: inline-block;
+  left: 0;
+  position: absolute;
+  transition: all 0.3s;
+}
+input.values-toggle-checkbox:checked::before {
+  content: "";
+  left: unset;
+  right: 0;
+  margin: 0;
+}
+input.values-toggle-checkbox:checked {
+  background-color: rgb(92, 162, 168);
+}
+
+.ajax-admin-loader {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid #000;
+  border-radius: 50px;
+  border-bottom: 2px solid #fff;
+  animation: ajax_pre_loader 3s infinite;
+}
+
+@keyframes ajax_pre_loader {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.upload-new-logo {
+  min-height: 200px;
+  max-height: 200px;
+}
+
+.official-website-logo {
+  max-width: 50%;
+}
+.official-website-logo .position-absolute img {
+  width: 25px;
+  height: 25px;
+  filter: invert(1);
+}
+
+/** Header Styling ******************/
+.site-logo img, .site-branding img {
+  width: 100px;
+}
+
+.header-cta-button {
+  border-radius: 50px;
+}
+
+.company-social-icons {
+  width: 35px;
+  height: 35px;
+}
+.company-social-icons:not(:last-child) {
+  margin-right: 3rem;
+}
+
+.header-search-form input[type=submit] {
+  display: none;
+}
+.header-search-form input[type=search], .header-search-form input[type=search]::placeholder {
+  font-size: inherit;
+  color: #111;
+  font-family: inherit;
+  text-transform: capitalize;
+  padding: 0.4rem 1rem;
+  border-radius: 50px;
+  background-color: #e5e4e4;
+  transition: all 0.3s;
+}
+.header-search-form input[type=search]:focus, .header-search-form input[type=search]:hover {
+  border: 1px solid #F97D03;
+  outline: none;
+}
+.header-search-form i.bi {
+  width: 50px;
+  height: 50px;
+}
+
+.header-bottom .main-navigation ul {
+  justify-content: space-between;
+}
+.header-bottom .main-navigation .menu-item > a {
+  color: #111;
+  text-transform: uppercase;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: inherit;
+  transition: all 0.3s;
+}
+.header-bottom .main-navigation .menu-item > a:hover {
+  color: #F97D03;
+}
+
+/** Front Page Hero Section Styling ******************/
+.hero-section {
+  height: 500px;
+}
+.hero-section > .row > div:first-child::before {
+  content: "";
+  background: url(../images/home_logo_bulb.png);
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-repeat: no-repeat;
+  background-position: center;
+  object-fit: contain;
+  left: -40%;
+  background-size: contain;
+  transform: scale(1.4);
+  pointer-events: none;
+  user-select: none;
+}
+.hero-section > .row > div:last-child img {
+  left: -50%;
+  height: 90%;
+}
+
+.lead-form input[type=email]:focus {
+  outline: none;
+}
+.lead-form input[type=submit] {
+  padding: 14px;
+  right: 6px;
+}
+
+.placeholder-white::placeholder {
+  color: white;
+}
+
+.recent-articles .post-thumbnail {
+  height: 350px;
+}
+.recent-articles .post-thumbnail img {
+  height: 100%;
+  object-fit: cover;
+  width: 70%;
+  border-radius: 0 30px 0 30px;
+}
+.recent-articles .post-content h3 {
+  min-height: 67px;
+}
+
+/*# sourceMappingURL=style.css.map */

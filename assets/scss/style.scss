@@ -1,0 +1,181 @@
+// Options page styling
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap');
+@import './vars';
+
+/** Utility Classes ******************/
+.font-roboto {
+    font-family: $fontRoboto;
+}
+
+.text-primary-admin {
+    color: $adminPrimaryColor !important;
+}
+
+.text-tabs {
+    color: $TabsColor;
+}
+
+.para-color {
+    color: $paraColor;
+}
+
+.bg-primary-user {
+    background-color: $userPrimaryColor;
+}
+
+.bg-secondary-user {
+    background-color: $userSecondaryColor;
+}
+
+.text-secondary-user {
+    color: $userSecondaryColor;
+}
+
+.bg-grey-1-user {
+    background-color: $userGrey1;
+}
+
+.text-grey-1-user {
+    color: $userGrey1;
+}
+
+.comfortable-space {
+    margin-top: 6px;
+    margin-bottom: 12px;
+}
+.compact-space {
+    margin-top: 24px;
+    margin-bottom: 48px;
+}
+.rounded-circle-px {
+    border-radius: 50px;
+}
+
+@import './admin-styles';
+
+
+/** Header Styling ******************/
+.site-logo img, .site-branding img {
+    width: 100px;
+}
+.header-cta-button {
+    border-radius: 50px;
+}
+
+.company-social-icons {
+    width: 35px;
+    height: 35px;
+
+    &:not(:last-child) {
+        margin-right: 3rem;
+    }
+}
+
+.header-search-form {
+    & input[type="submit"] {
+        display: none;
+    }
+
+    & input[type="search"],
+    & input[type="search"]::placeholder {
+        font-size: inherit;
+        color: $userSecondaryColor;
+        font-family: inherit;
+        text-transform: capitalize;
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        background-color: $userGrey1;
+        transition: all .3s;
+    }
+
+    & input[type="search"]:focus,
+    & input[type="search"]:hover {
+        border: 1px solid $userPrimaryColor;
+        outline: none;
+    }
+
+    & i.bi {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+.header-bottom {
+    & .main-navigation {
+        & ul {
+            justify-content: space-between;
+        }
+
+        & .menu-item>a {
+            color: $userSecondaryColor;
+            text-transform: uppercase;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: inherit;
+            transition: all .3s;
+
+            &:hover {
+                color: $userPrimaryColor;
+            }
+        }
+    }
+}
+
+
+/** Front Page Hero Section Styling ******************/
+.hero-section {
+    height: 500px;
+    > .row > div:first-child {
+        &::before {
+            content: '';
+            background: url(../images/home_logo_bulb.png);
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            background-repeat: no-repeat;
+            background-position: center;
+            object-fit: contain;
+            left: -40%;
+            background-size: contain;
+            transform: scale(1.4);
+            pointer-events: none;
+            user-select: none;
+        }
+    }
+    > .row > div:last-child img {
+        left: -50%;
+        height: 90%;
+    }
+}
+.lead-form {
+    input[type="email"]:focus {
+        outline: none;
+    }
+    input[type="submit"] {
+        padding: 14px;
+        right: 6px;
+    }
+}
+
+.placeholder-white {
+    &::placeholder {
+        color: white;
+    }
+}
+
+.recent-articles {
+    .post-thumbnail {
+        height: 350px;
+        img {
+            height: 100%;
+            object-fit: cover;
+            width: 70%;
+            border-radius: 0 30px 0 30px;
+        }
+    }
+    .post-content {
+        h3 {
+            min-height: 67px;
+        }
+    }
+}

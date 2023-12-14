@@ -1,0 +1,52 @@
+body {
+    font-size: 1rem;
+}
+h1 {
+    font-size: 56px;
+}
+body {
+    font-family: "Open Sans", sans-serif;
+}
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Open Sans", sans-serif;
+}
+.site-logo img, .site-branding img {
+    height: 100px;
+    object-fit: contain;
+}
+.bg-primary, button {
+    background-color: #000000 !important;
+}
+.text-primary-user, a, .text-link, a[href] {
+    color: #000000;
+}
+.bg-secondary, button {
+    background-color: #111 !important;
+}
+.text-secondary {
+    color: #111 !important;
+}
+.bg-accent, button {
+    background-color: #fff !important;
+}
+.text-accent,a, .text-link, a[href] {
+    color: #fff;
+}
+.bg-headings-color {
+    background-color: #111 !important;
+}
+.text-headings-color, h1 {
+    color: #111;
+}
+h1, h2, h3, h4, h5, h6 {
+    color: #111 !important;
+}
+@media (max-width: 575px) {
+    .thumbnail-mobile-hidden {
+        display: none !important;
+    }
+}
+.layout-space {
+    margin-top: 24px !important;
+    margin-bottom: 48px !important;
+}
