@@ -17,6 +17,11 @@ get_header();
 
 	<main id="primary" class="site-main">
 
+	<section>
+		<h1 class="fs-4 text-dark fw-bold">Blog</h1>
+
+	</section>
+
 		<?php
 		if ( have_posts() ) :
 
@@ -53,5 +58,5 @@ get_header();
 	</main><!-- #main -->
 
 <?php
-get_sidebar();
+// get_sidebar();
 get_footer();
