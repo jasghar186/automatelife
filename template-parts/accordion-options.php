@@ -1,4 +1,11 @@
 <?php
+    $font_size_options = array(
+        'Small (16px)' => '1rem',
+        'Medium (18px)' => '1.125rem',
+        'Large (20px)' => '1.25rem',
+        'X-Large (22px)' => '1.375rem',
+    );
+    
     $GLOBALS['font_size_options'] = array(
         'Small (16px)' => '1rem',
         'Medium (18px)' => '1.125rem',

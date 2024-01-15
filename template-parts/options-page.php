@@ -5,7 +5,6 @@
      */
     require_once get_template_directory() . '/template-parts/accordion-options.php';
 
-
     function automate_life_options_page() {
 
         // Get Site Logo
@@ -22,6 +21,7 @@
         }
 
         $page = '<main class="wrap d-flex automate-life__optios m-0 w-100 min-vh-100 gap-5">'.
+
         '<aside class="automate-life__aside bg-white d-flex justify-content-center flex-column align-items-center p-3 position-sticky top-0 start-0 vh-100">';
         
         if($site_logo_url) {
@@ -85,297 +85,738 @@
         '</div>';
 
         return $options;
+    }  
+
+    /********************************8 */
+    class automate_life_accordion_options {
+
+        public $accordionTitle, $parent, $function;
+        const TOGGLE_DISABLED = 0;
+        const TOGGLE_ENABLED = 1;
+
+        function __construct($accordionTitle, $parent, $function) {
+            $this->accordionTitle = $accordionTitle;
+            $this->parent = $parent;
+            $this->id = strtolower( trim( str_replace(' ', '_', $accordionTitle) ) );
+            $this->function = $function;
+        }
+
+        // Make Accordion Item
+        function accordion_item() {
+            $item = '<div class="accordion-item mb-4 border rounded-3">'.
+            $this->accordion_header().
+            $this->accordion_body().
+            '</div>';
+
+            return $item;
+        }
+        // Make Accordion Header
+        function accordion_header() {
+            $header = '<h2 class="accordion-header rounded-3">'.
+            '<button class="accordion-button bg-white text-capitalize fs-5 text-dark rounded-3" type="button" data-bs-toggle="collapse"
+            data-bs-target="#'.$this->id.'_accordion" aria-expanded="false"
+            aria-controls="'.$this->id.'_accordion">'.
+            $this->accordionTitle.
+            '</button>'.
+            '</h2>';
+
+            return $header;
+        }
+
+        function accordion_body() {
+            $body = '<div id="'.$this->id.'_accordion" class="accordion-collapse collapse"
+            data-bs-parent="'.$this->parent.'_accordion">'.
+            '<div class="accordion-body p-4">'.
+            $this->{$this->function}().
+            '</div>'.
+            '</div>';
+
+            return $body;
+        }
+
+        function option_left_structure($title, $description = '', $default = '') {
+            $id = strtolower( trim( str_replace(' ', '_', $title) ) );
+
+            $left = '<div class="p-4 border-end flex-grow-1 w-50">'.
+            '<label for="'.$id.'_option" class="fs-6 text-capitalize">'.$title.'</label>';
+            if(!empty($description)) {
+                $left .= '<p class="mb-1 fw-light para-color">'.$description.'</p>';
+            }
+            
+            if(!empty($default)) {
+                $left .= '<i class="para-color fw-light fs-6">(Default: '.$default.')</i>';
+            }
+            $left .= '</div>';
+
+            return $left;
+        }
+
+        // Make instances for each accordion
+
+        function option_wrapper($contentLeft = '', $contentRight = '') {
+            return '<div class="d-flex align-items-center accordion-body-content border rounded-3 mb-3 accordion-options-wrapper">'.
+            $contentLeft.
+            $contentRight.
+            '</div>';
+        }
+
+        function option_right_structure_dropdown($title, $options) {
+
+            $id = strtolower( trim( str_replace(' ', '_', $title) ) );
+
+            $selected = '';
+
+            $dropdown = '<div class="p-4 flex-grow-1 w-50">'.
+            '<select id="'.$id.'_option" class="w-100 py-1">';
+
+            foreach($options as $key => $value) {
+                if( get_option($id . '_option') !== false && htmlspecialchars(get_option($id . '_option'), ENT_QUOTES) === htmlspecialchars($value, ENT_QUOTES) ) {
+                    $selected = 'selected';
+                }
+
+                $dropdown .= '<option
+                id="option-'.htmlspecialchars($value, ENT_QUOTES).'"
+                value="'.htmlspecialchars($value, ENT_QUOTES).'"
+                '. $selected .'>'.$key.'</option>';
+
+                $selected = '';
+            }
+
+            $dropdown .= '</select>'.
+            '</div>';
+
+            return $dropdown;
+        }
+
+        function option_right_structure_toggle($title) {
+            $id = strtolower( trim( str_replace(' ', '_', $title) ) );
+            $optionEnabled = intval(get_option($id . '_option'));
+
+            $checked = '';
+            if($optionEnabled === 1) {
+                $checked = 'checked';
+            }
+
+            $toggle = '<div class="p-4 flex-grow-1 w-50">'.
+            // Wrapper div
+            '<div class="checkbox-toggle-wrapper gap-3 d-flex align-items-center justify-content-center" data-target="'.$id.'">'.
+            '<button data-parent="'.$id.'"
+            class="bg-transparent border-0 p-0 checkbox-toggler-btn"
+            data-checkbox="'.self::TOGGLE_DISABLED.'">Disabled</button>'.
+            '<input type="checkbox"
+            class="values-toggle-checkbox"
+            id="'.$id.'_option"
+            value="'.($optionEnabled === 1 ? self::TOGGLE_ENABLED : self::TOGGLE_DISABLED).'"
+            '.$checked.'/>'.
+            '<button data-parent="'.$id.'"
+            class="bg-transparent border-0 p-0 checkbox-toggler-btn"
+            data-checkbox="'.self::TOGGLE_ENABLED.'">Enable</button>'.
+            '</div>'.
+    
+            '</div>';
+
+            return $toggle;
+        }
+
+        function option_right_structure_colors($title) {
+
+            $id = strtolower( trim( str_replace(' ', '_', $title) ) );
+
+            $colorOption = 'fff';
+
+            if(get_option($id . '_option')) {
+                $colorOption = get_option($id . '_option');
+            }
+
+            $colorContent = '<div class="p-4 flex-grow-1 w-50">'.
+            '<div class="color-picker-wrapper position-relative">'.
+            '<div class="color-picker-input border p-2 rounded">'.
+            '<input
+            type="text"
+            id="'.$id.'_option"
+            data-color="'.$colorOption.'"
+            class="text-white site-color-picker text-center p-2 w-100"
+            data-parent="site-primary-color"
+            value="'.$colorOption.'"
+            style="background:'.$colorOption.'" />'.
+            '</div>'.
+            '<div class="color-picker-dropdown position-absolute top-100 d-none w-auto bg-white p-3 shadow-sm border z-1">';
+            foreach($GLOBALS['site_colors'] as $color => $code) {
+                $colorContent .= '<span class="site-color-block rounded d-inline-block cursor-pointer"
+                data-color-code="'.$code.'"
+                data-color-name="'.$color.'"
+                data-parent="'.$id.'_option"
+                style="background:'.$code.'"></span>';
+            }
+            $colorContent .= '</div>'.
+            '</div>'.
+            '</div>';
+
+            return $colorContent;
+        }
+
+        function option_right_structure_image($title, $attachment_id) {
+            $id = strtolower( trim( str_replace(' ', '_', $title) ) );
+
+            $logo_url = wp_get_attachment_image_url($attachment_id);
+            $logo_attachment_metadata = wp_get_attachment_metadata($attachment_id);
+            $attachment_alt = get_post_meta($logo_url, '_wp_attachment_image_alt', true);
+
+
+            $image = '<div class="p-4 flex-grow-1 w-50">'.
+
+            '<div class="upload-new-logo cursor-pointer border rounded align-items-center justify-content-center '.
+            (!$logo_url ? 'd-flex' : 'd-none').'">'.
+            '<img
+            src="'.site_url().'/wp-content/themes/automate-life/assets/images/upload-site-logo.webp"
+            alt="Upload Site Logo"
+            loading="lazy" 
+            width="30" height="30" />'.
+            '</div>'.
+
+            '<div class="official-website-logo position-relative '.
+            (!$logo_url ? 'd-none' : 'd-flex').'">'.
+            '<img id="'.$id.'"
+            src="'.$logo_url.'" width="223" height="230"
+            alt="'.$attachment_alt.'"
+            loading="lazy"
+            class="img-fluid admin-selected-logo d-block mx-auto" />'.
+            '<div class="position-absolute end-0 top-0 bg-dark remove-site-logo">'.
+            '<img src="'.site_url().'/wp-content/themes/automate-life/assets/images/remove-logo.webp"
+            alt="remove logo"
+            title="Remove Logo"
+            loading="lazy" width="32" height="32" />'.
+            '</div>'.
+            '</div>'.
+
+            '</div>';
+
+            return $image;
+        }
+
+        function option_right_structure_text_field($title, $field_type = 'input', $isSocial = false, $socialPlatform = null, $placeholder = '') {
+            $id = strtolower( trim( str_replace(' ', '_', $title) ) );
+
+            $text = '<div class="p-4 flex-grow-1 w-50">';
+
+            if($field_type === 'input') {
+                $text .= '<input
+                type="text"
+                placeholder="'.$placeholder.'"
+                class="w-100 p-2 '.$socialPlatform.'_social_url '.($isSocial ? 'control-panel-social-field' : 'control-panel-text-field').'"
+                id="'.$id.'_option"
+                value="'.(get_option($id . '_option') !== false ? trim(str_replace(Date('Y'), '{current_year}', get_option($id . '_option'))) : '').'">';
+            }else if($field_type === 'textarea') {
+                $value = get_option($id.'_option') !== false ?
+                implode("\n", unserialize(get_option($id .'_option'))) :
+                '';
+
+                $text .= '<textarea
+                class="form-control w-100 p-2 border border-dark control-panel-textarea"
+                placeholder="'.$placeholder.'"
+                id="'.$id.'_option"
+                value="'.$value.'"
+                style="min-height:150px;">'.$value.'</textarea>';
+            }
+
+            $text .= '</div>';
+
+            return $text;
+        }
+
+        function font_size_and_typography() {
+            // call left right layout functions
+
+            return 
+            
+            /** 
+             * Change Font Size Option
+             */
+
+            $this->option_wrapper(
+            $this->option_left_structure(
+            'change font size',
+            'This will update the theme\'s body font size',
+            '18px'),
+            $this->option_right_structure_dropdown(
+            'Change Font Size',
+            $GLOBALS['font_size_options']
+            )
+            ).
+
+            /**
+             *  Heading 1 Font Size Option
+             */
+
+            $this->option_wrapper(
+            $this->option_left_structure(
+            'h1 font size',
+            'This will determine the size of the H1 headings across your site.',
+            'Medium'),
+            $this->option_right_structure_dropdown(
+            'H1 Font Size',
+            $GLOBALS['h1_font_size_options']
+            )
+            ).
+
+            /**
+             * Apply heading H1 Font Size To All Headings
+             */
+
+            $this->option_wrapper(
+            $this->option_left_structure(
+            'apply h1 font size to all headings',
+            'This will make all headings cascade sizes down from the H1 font size.',
+            'disabled'),
+            $this->option_right_structure_toggle('apply h1 font size to all headings')).
+
+            /**
+             * Body Font Family
+             */
+            $this->option_wrapper(
+            $this->option_left_structure(
+            'body font',
+            'This value is used to set the main font on the site. (Select a Web Safe font for best performance). <b>Note:</b> Some web-safe fonts are only available on either Mac or Windows devices. If your selected font is not available, another similar font will be displayed as a fallback font.',
+            'Arial'),
+            $this->option_right_structure_dropdown(
+            'body font',
+            $GLOBALS['body_font_options']
+            )
+            ).
+
+            /**
+             * Headings Font Family
+             */
+            $this->option_wrapper(
+            $this->option_left_structure(
+            'heading font',
+            'This value is used to set the heading font on the site. (Select a Web Safe font for best performance). <b>Note:</b> Some web-safe fonts are only available on either Mac or Windows devices. If your selected font is not available, another similar font will be displayed as a fallback font.',
+            'Arial'),
+            $this->option_right_structure_dropdown(
+            'heading font',
+            $GLOBALS['body_font_options']
+            )
+            );
+            
+        }
+
+        function colors() {
+            // call left right layout functions
+            return 
+
+            /**
+             * Primary Color Option
+             */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'Primary Color',
+                    'This will set the color of some primary theme features like links, buttons and other elements.',
+                ),
+                $this->option_right_structure_colors('Primary Color'),
+            ).
+
+            /**
+             * Secondary Color Option
+             */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'Secondary Color',
+                    'This will set the color of some primary theme features like links, buttons and other elements.',
+                ),
+                $this->option_right_structure_colors('Secondary Color'),
+            ).
+
+            /**
+             * Accent Color Option
+             */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'Accent Color',
+                    'This will set the color of some primary theme features like links, buttons and other elements.',
+                ),
+                $this->option_right_structure_colors('Accent Color'),
+            ).
+
+            /**
+             * Accent Color Option
+             */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'H1 Color',
+                    'This will set the color of some primary theme features like links, buttons and other elements.',
+                ),
+                $this->option_right_structure_colors('H1 Color'),
+            ).
+
+            /**
+             * Accent Color Option
+             */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'Apply h1 color to all headings',
+                    'This will make all headings inherit the H1 color.',
+                ),
+                $this->option_right_structure_toggle('Apply h1 color to all headings'),
+            );
+        }
+
+        function post_meta() {
+            
+            return
+
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'post meta display date',
+                    'Select which post meta to display in the post footer.',
+                    'both',
+                ),
+                $this->option_right_structure_dropdown(
+                    'post meta display date',
+                    $GLOBALS['post_meta_options'],
+                )
+            );
+        }
+
+        function images() {
+            return
+
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'site logo',
+                    'The site logo will display at full resolution in the header. We recommend using .jpg, .png. or .svg images. For best performance and display the image should be no taller than twice the value you\'ve selected for the maximum image height.',
+                ),
+                $this->option_right_structure_image('site logo', get_option('site_logo')),
+            ).
+
+            /** Change Logo Height */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'change logo height',
+                    'This will update your max logo height in the header.',
+                    '75px',
+                ),
+                $this->option_right_structure_dropdown(
+                    'change logo height',
+                    $GLOBALS['site_logo_height'],
+                ),
+            ).
+
+            /** Display Featured Images */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'display featured images',
+                    'Enable this option to display featured images on posts.',
+                    'disabled',
+                ),
+                $this->option_right_structure_toggle(
+                    'display featured images'
+                ),
+            ).
+
+            /** Hide Featured Images From Small Screens */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'hide featured images from small screens',
+                    'Enable this option to hide featured images on posts when the user has a device with a screen width lower than 600px (e.g. Mobile). Displaying featured images to mobile device will increase Largest Contentful Paint (LCP), one of Google\'s Core Web Vitals.',
+                    'disabled',
+                ),
+                $this->option_right_structure_toggle(
+                    'hide featured images from small screens'
+                ),
+            );
+        }
+
+        function footer() {
+            return 
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'footer copyright text',
+                    'Use this field to add personalized copyright to footer. This field supports HTML markup, including links.',
+                ),
+                $this->option_right_structure_text_field(
+                    'footer copyright text',
+                    'input',
+                    false,
+                    null,
+                    'Enter Footer Copyright Text',
+                ),
+            );            
+        }
+
+        function layout() {
+            return 
+
+            /**Enable Search Bar */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'enable search bar',
+                    'Enabling this adds a search bar to the site header.',
+                    'disabled',
+                ),
+                $this->option_right_structure_toggle(
+                    'enable search bar',
+                ),
+            ).
+
+            /** Layout Space */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'layout space',
+                    'This will update the space around page elements.',
+                    'Comfortable',
+                ),
+                $this->option_right_structure_dropdown(
+                    'layout space',
+                    $GLOBALS['layout_space'],
+                ),
+            ).
+
+            /** Display Tag Links */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'display tag links',
+                    'Enabling this setting will display tag links after the post content.',
+                    'disabled',
+                ),
+                $this->option_right_structure_toggle(
+                    'display tag links',
+                ),
+            ).
+
+            /** Article Navigation */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'article navigation',
+                    'Enable this option to display an Article Navigation (Previous/Next) at the bottom of your posts.',
+                    'disabled',
+                ),
+                $this->option_right_structure_toggle(
+                    'article navigation',
+                ),
+            );
+        }
+
+        function socialLinks() {
+            return 
+
+            /** Twitter */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'twitter',
+                ),
+                $this->option_right_structure_text_field(
+                    'twitter',
+                    'input',
+                    true,
+                    'twitter',
+                    'Enter Twitter URL',
+                ),
+            ).
+
+            /** Facebook */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'facebook',
+                ),
+                $this->option_right_structure_text_field(
+                    'facebook',
+                    'input',
+                    true,
+                    'facebook',
+                    'Enter Facebook URL',
+                ),
+            ).
+
+            /** Tiktok */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'tiktok',
+                ),
+                $this->option_right_structure_text_field(
+                    'tiktok',
+                    'input',
+                    true,
+                    'tiktok',
+                    'Enter Tiktok URL',
+                ),
+            ).
+
+            /** Youtube */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'youtube',
+                ),
+                $this->option_right_structure_text_field(
+                    'youtube',
+                    'input',
+                    true,
+                    'youtube',
+                    'Enter Youtube URL',
+                ),
+            ).
+
+            /** Pinterest */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'pinterest',
+                ),
+                $this->option_right_structure_text_field(
+                    'pinterest',
+                    'input',
+                    true,
+                    'pinterest',
+                    'Enter Pinterest URL',
+                ),
+            ).
+
+            /** Instagram */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'instagram',
+                ),
+                $this->option_right_structure_text_field(
+                    'instagram',
+                    'input',
+                    true,
+                    'instagram',
+                    'Enter Instagram URL',
+                ),
+            );
+        }
+
+        function otherCustomizations() {
+            return 
+            /** Our Latest Videos */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'Our Latest Youtube Videos',
+                    'Enter Youtube Videos Embed URLS (1 URL Per Line)',
+                ),
+                $this->option_right_structure_text_field(
+                    'Our Latest Youtube Videos',
+                    'textarea',
+                    false,
+                    null,
+                    'Enter Youtube videos URL, 1 Per Line'
+                ),
+            ).
+
+            /** Scroll Back To Top */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'scroll back to top',
+                    'Enable this option to add scroll to top button in the website',
+                ),
+                $this->option_right_structure_toggle(
+                    'scroll back to top'
+                )
+            );
+        }
+
     }
+
+    /*********************************** */
+
 
     function automate_life_display_tab_content() {
         $display = '<div class="p-4">'.
         '<div class="d-flex align-items-center justify-content-between mb-4">'.
         '<h2 class="fs-3 mb-0">Display Settings</h2>'.
         '<button class="save-display save-options">Save</button>'.
-        '</div>'.
-        automate_life_add_accordion('display_tab-pane', 'font-size', 'font-size and typography').
-        automate_life_add_accordion('display_tab-pane', 'site-colors', 'Colors').
-        automate_life_add_accordion('display_tab-pane', 'post-meta', 'post meta').
-        automate_life_add_accordion('display_tab-pane', 'site-images', 'Images').
-        automate_life_add_accordion('display_tab-pane', 'site-footer', 'Footer').
-        automate_life_add_accordion('display_tab-pane', 'site-layout', 'Layout').
-        automate_life_add_accordion('display_tab-pane', 'social-links', 'Social Links').
         '</div>';
+
+        $font_size_typography = new automate_life_accordion_options('Font size and typography', 'display_tab_pane', 'font_size_and_typography');
+        $colors = new automate_life_accordion_options('colors', 'display_tab_pane', 'colors');
+        $post_meta = new automate_life_accordion_options('post meta', 'display_tab_pane', 'post_meta');
+        $images = new automate_life_accordion_options('images', 'display_tab_pane', 'images');
+        $footer = new automate_life_accordion_options('footer', 'display_tab_pane', 'footer');
+        $layout = new automate_life_accordion_options('layout', 'display_tab_pane', 'layout');
+        $socialLinks = new automate_life_accordion_options('social links', 'display_tab_pane', 'socialLinks');
+        $otherCustomizations = new automate_life_accordion_options('Extra Options', 'display_tab_pane', 'otherCustomizations');
+
+        $display .= $font_size_typography->accordion_item();
+        $display .= $colors->accordion_item();
+        $display .= $post_meta->accordion_item();
+        $display .= $images->accordion_item();
+        $display .= $footer->accordion_item();
+        $display .= $layout->accordion_item();
+        $display .= $socialLinks->accordion_item();
+        $display .= $otherCustomizations->accordion_item();
+        // $display .= $post_meta->accordion_item();
+
+        $display .= '</div>';
         return $display;
     }
 
-    /*
-        * Function to add a new accordion item in the tabs content
-        * @param string $parent ID of the parent wrapper element
-        * @param string $accordionBody Unique identifier for the accordion trigger
-        * and the accordion body to make the accordion functional
-        * @param string $title The Title of the accordion
-        */
+    // Smart Products in stock
+    function automate_life_products_in_stock() {
+        $content = '<div class="border p-3 rounded-3">'.
+        '<h2 class="mb-3">Update products data from below</h2>'.
+        '<div class="row">';
 
-    function automate_life_add_accordion($parent, $accordionBody, $title) {
-        $accordion = '<div class="accordion-item mb-4 border rounded-3">'.
-        '<h2 class="accordion-header rounded-3">'.
-        '<button class="accordion-button bg-white text-capitalize fs-5 text-dark rounded-3" type="button" data-bs-toggle="collapse"
-        data-bs-target="#'.$accordionBody.'-accordion" aria-expanded="false"
-        aria-controls="'.$accordionBody.'-accordion">'.
-        $title.
-        '</button>'.
-        '</h2>'.
-        '<div id="'.$accordionBody.'-accordion" class="accordion-collapse collapse"
-        data-bs-parent="'.$parent.'-accordion">'.
-        '<div class="accordion-body p-4">';
-        
-        if($accordionBody === 'font-size') {
-            $accordion .= automate_life_dropdown_accordion('font-size-dropdown', 'Change font size', 'This will update the theme\'s body font size', '16px', $GLOBALS['font_size_options']);
-            $accordion .= automate_life_dropdown_accordion('h1-font-size', 'H1 Font Size', 'This will determine the size of the H1 headings across your site.', 'Medium', $GLOBALS['h1_font_size_options']);
-            $accordion .= automate_life_toggle_box_accordion('apply-to-h1-headings', 'Apply h1 Size to All Headings',
-        'This will make all headings cascade sizes down from the H1 font size.', 'Disabled');
+        $GLOBALS['user_selected_options']['shopify-products-data'] = array_reverse($GLOBALS['user_selected_options']['shopify-products-data']);
+        $count = count($GLOBALS['user_selected_options']['shopify-products-data']);
 
-            $accordion .= automate_life_dropdown_accordion('body-font-family',
-            'Body Font', 'This value is used to set the main font on the site.
-            (Select a Web Safe font for best performance). <b>Note:</b> Some
-            web-safe fonts are only available on either Mac or Windows devices.
-            If your selected font is not available, another similar font will be
-            displayed as a fallback font. <a href="#">Learn More</a>',
-            'System Default (Web Safe)', $GLOBALS['body_font_options']);
-
-            $accordion .= automate_life_dropdown_accordion('heading-font-family',
-            'Heading Font', 'This value is used to set the heading font on the site.
-            (Select a Web Safe font for best performance). <b>Note:</b> Some web-safe fonts
-            are only available on either Mac or Windows devices. If your selected font is
-            not available, another similar font will be displayed as a fallback font.
-            <a href="#">Learn More</a>','System Default (Web Safe)',
-            $GLOBALS['body_font_options']);
-
-        }else if($accordionBody === 'post-meta') {
-            $accordion .= automate_life_dropdown_accordion('post-meta-display-date',
-            'Post Meta Display Date', 'Select which post meta to display in the post footer.',
-            'Both', $GLOBALS['post_meta_options']);
-        }else if($accordionBody==='site-images') {
-            $accordion .= automate_life_dropdown_accordion('site-logo-attachment',
-            'Site Logo', 'The site logo will display at full resolution in the header.
-            We recommend using .jpg, .png. or .svg images. For best performance and
-            display the image should be no taller than twice the value you\'ve
-            selected for the maximum image height.','disable', get_option('site_logo'));
-            $accordion .= automate_life_dropdown_accordion('change-logo-height',
-            'Change Logo Height', 'This will update your max logo height in the header.',
-            '75px', $GLOBALS['site_logo_height']);
-
-            $accordion .= automate_life_toggle_box_accordion('display-blog-featured-images', 'Display featured images', 'Enable this option to display featured images on posts.', 'disabled');
-            $accordion .= automate_life_toggle_box_accordion('hide-blog-featured-images-from-small-screen', 'Hide featured images from small screens', 'Enable this option to hide featured images on posts when the user has a device with a screen width lower than 600px (e.g. Mobile). Displaying featured images to mobile device will increase Largest Contentful Paint (LCP), one of Google\'s Core Web Vitals.', 'disabled');
-
-        }else if($accordionBody === 'site-colors') {
-            $accordion .= automate_life_colors_accordion('site-primary-color', 'Primary Color', 'This will set the color of some primary theme features like links, buttons and other elements.', $GLOBALS['site_colors']);
-            $accordion .= automate_life_colors_accordion('site-secondary-color', 'Secondary Color', 'This will set the color of some primary theme features like links, buttons and other elements.', $GLOBALS['site_colors']);
-            $accordion .= automate_life_colors_accordion('site-accent-color', 'Accent Color', 'This will set the color of some primary theme features like links, buttons and other elements.', $GLOBALS['site_colors']);
-            $accordion .= automate_life_colors_accordion('site-h1-color', 'H1 Color', 'This will set the color of some primary theme features like links, buttons and other elements.', $GLOBALS['site_colors']);
-            $accordion .= automate_life_toggle_box_accordion('apply-colors-to-h1-headings', 'Apply H1 Color to all headings', '
-            This will make all headings inherit the H1 color.', 'disabled');
-        }else if($accordionBody === 'site-footer') {
-            $accordion .= automate_life_toggle_box_accordion('hide-promotion-footer-links', 'Hide Automate Life footer links', 'Enabling this option hides Mediavine/Trellis footer links.', 'disabled');
-            $accordion .= automate_life_dropdown_accordion('footer-copyright-text',
-            'Footer copyright text', 'Use this field to add personalized copyright to footer. This field supports HTML markup, including links.', null,
-            $GLOBALS['body_font_options']);
-        }else if($accordionBody === 'site-layout') {
-            $accordion .= automate_life_toggle_box_accordion('enable-search-bar', 'Enable Search Bar',
-            'Enabling this adds a search bar to the site header.', 'disabled');
-            $accordion .= automate_life_dropdown_accordion('layout-space',
-            'Layout Space', 'This will update the space around page elements.', 'Comfortable',
-            $GLOBALS['layout_space']);
-            $accordion .= automate_life_toggle_box_accordion('display-tag-links', 'Display Tag Links',
-            'Enabling this setting will display tag links after the post content.', 'Enabled');
-            $accordion .= automate_life_toggle_box_accordion('article-navigation', 'Article Navigation',
-            'Enable this option to display an Article Navigation (Previous/Next) at the bottom of your posts.', 'Enabled');
-            $accordion .= automate_life_toggle_box_accordion('enable-trellis-comments', 'Enable Trellis comments',
-            'This will allow Trellis Comments to work across your site. If you are experiencing issues with a 3rd party comment tool, deactivating Trellis Comments may be necessary for compatibility.',
-            'Enabled');
-        }else if($accordionBody === 'social-links') {
-            $accordion .= automate_life_social_links('twitter-social-url', 'Twitter');
-            $accordion .= automate_life_social_links('facebook-social-url', 'Facebook');
-            $accordion .= automate_life_social_links('tiktok-social-url', 'Tiktok');
-            $accordion .= automate_life_social_links('youtube-social-url', 'Youtube');
-            $accordion .= automate_life_social_links('pinterest-social-url', 'Pinterest');
-            $accordion .= automate_life_social_links('instagram-social-url', 'Instagram');
+        // Add dummy cards if the count is less than 3
+        if ($count < 3) {
+            $dummyCount = 3 - $count;
+            for ($i = 0; $i < $dummyCount; $i++) {
+                $dummyProduct = array(
+                    'id' => '',
+                    'title' => '',
+                    'description' => '',
+                    'price' => '',
+                    'url' => '',
+                );
+                array_push($GLOBALS['user_selected_options']['shopify-products-data'], $dummyProduct);
+            }
         }
-
-        $accordion .= '</div>'.
-        '</div>'.
-        '</div>';
-
-        return $accordion;
-    }
-
-    $GLOBALS['user_selected_options'] = array(
-        'font-size-dropdown' => get_option('base_font_size'),
-        'h1-font-size' => get_option('h1_font_size'),
-        'body-font-family' => get_option('body_font_family'),
-        'heading-font-family' => get_option('heading_font_family'),
-        'change-logo-height' => get_option('base_logo_height'),
-        'apply-to-h1-headings' => get_option('apply-to-h1-headings'),
-        'featured-image-size' => get_option('featured-image-size'),
-        'hide-promotion-footer-links' => get_option('hide-promotion-footer-links'),
-        'site-primary-color' => get_option('site-primary-color'),
-        'site-secondary-color' => get_option('site-secondary-color'),
-        'site-accent-color' => get_option('site-accent-color'),
-        'site-h1-color' => get_option('site-h1-color'),
-        'apply-colors-to-h1-headings' => get_option('apply-colors-to-h1-headings'),
-        'display-blog-featured-images' => get_option('display-blog-featured-images'),
-        'hide-blog-featured-images-from-small-screen' => get_option('hide-blog-featured-images-from-small-screen'),
-        'hide-promotion-footer-links' => get_option('hide-promotion-footer-links'),
-        'post-meta-display-date' => get_option('post-meta-display-date'),
-        'footer-copyright-text' => get_option('footer-copyright-text'),
-        'enable-search-bar' => get_option('enable-search-bar'),
-        'display-tag-links' => get_option('display-tag-links'),
-        'article-navigation' => get_option('article-navigation'),
-        'enable-trellis-comments' => get_option('enable-trellis-comments'),
-        'layout-space' => get_option('layout-space'),
-    );
-
-    /*
-    *** Function to display accordion's dropdown content
-    *** @param string $uniqueLabel A unique string of each dropdown filter
-    *** @param string $title The title of the accordion
-    *** @param string $description The description of the content
-    *** @param string $default A default base value of the filter
-    *** @param array $options Array of the dropdown options */
-
-    function automate_life_dropdown_accordion($uniqueLabel, $title, $description, $default ='', $options) {
-        $content = '<div class="d-flex align-items-center accordion-body-content border rounded-3 mb-3 dropdown-accordion-wrapper">'.
-        '<div class="p-4 border-end flex-grow-1 w-50">'.
-        '<label for="'.$uniqueLabel.'" class="fs-6">'.$title.'</label>'.
-        '<p class="mb-1 fw-light para-color">'.$description.'</p>'.
-        '<i class="para-color fw-light fs-6">(Default: '.$default.')</i>'.
-        '</div>'.
-        '<div class="p-4 flex-grow-1 w-50">';
         
-        // Check if its site logo accordion content
-        if(!is_array($options) && $uniqueLabel === 'site-logo-attachment') {
-            $logo_url = wp_get_attachment_image_url($options);
-            $logo_attachment_metadata = wp_get_attachment_metadata($options);
-            // Extract relevant information
-            $attachment_alt = get_post_meta($logo_url, '_wp_attachment_image_alt', true);
-
-            $content .= '<div class="change-site-logo-wrapper">'.
-            '<div class="upload-new-logo cursor-pointer border rounded align-items-center justify-content-center '.(!$logo_url ? 'd-flex' : 'd-none').'">'.
-            '<img src="'.site_url().'/wp-content/themes/automate-life/assets/images/upload-site-logo.png" alt="Upload Site Logo" loading="lazy" 
-            width="30" height="30" />'.
-            '</div>'.
-            '<div class="official-website-logo position-relative '.(!$logo_url ? 'd-none' : 'd-flex').'">'.
-            '<img id="'.$uniqueLabel.'" src="'.$logo_url.'" width="223" height="230"
-            alt="'.$attachment_alt.'" loading="lazy" class="img-fluid admin-selected-logo d-block mx-auto" />'.
-            '<div class="position-absolute end-0 top-0 bg-dark remove-site-logo">'.
-            '<img src="'.site_url().'/wp-content/themes/automate-life/assets/images/remove-logo.png" alt="remove logo"
-            loading="lazy" width="32" height="32" />'.
-            '</div>'.
+        foreach($GLOBALS['user_selected_options']['shopify-products-data'] as $product) {
+            $content .= '<div class="col-12 col-md-4">'.
+            '<div class="admin-product-image-container mb-4 position-relative z-1">';
+            if ($product['id'] !== '') {
+                $attachment_id = $product['id'];
+                $img_url = wp_get_attachment_image_src($attachment_id, 'full');
+                $img_url = $img_url[0]; // The actual URL is at index 0
+                // Get image title
+                $img_title = get_the_title($attachment_id);
+                // Get image alt text
+                $img_alt = get_post_meta($attachment_id, '_wp_attachment_image_alt', true);
+                // Output the image tag
+                $content .= '<img src="' . esc_url($img_url) . '"
+                alt="' . esc_attr($img_alt) . '"
+                title="' . esc_attr($img_title) . '"
+                class="border border-dark rounded-3 img-fluid w-100 h-100 product-thumbnail object-fit-contain" loading="lazy" data_id="'.(int) $attachment_id.'" />';
+            }else {
+                $content .= '<img src="'.site_url().'/wp-content/themes/automate-life/assets/images/dummy_product.webp"
+                class="border border-dark rounded-3 img-fluid w-100 h-100 product-thumbnail object-fit-contain" alt="Dummy Product" loading="lazy" data_id="0" />';
+            }
+            
+            $content .= '<span class="remove-admin-product-image position-absolute top-0 end-0 fs-4 z-3" style="cursor:pointer;">'.
+            '<i class="bi bi-x-circle-fill"></i>'.
+            '</span>';
+            $content .= '</div>'.
+            '<div>'.
+            '<input type="text" placeholder="Enter Product Title" value="'.$product['title'].'"
+            class="d-inline-block products-title-field mb-3 form-control w-100 rounded"
+            data_id="'.(int) $product['id'].'" />'.
+            '<textarea placeholder="Enter Product Description" style="min-height:200px;"
+            value="'.$product['description'].'" class="d-inline-block products-description-field mb-3 form-control w-100 rounded"
+            data_id="'.(int) $product['id'].'">'.(!empty($product['description']) ? htmlspecialchars(strip_tags($product['description'])) : '').'</textarea>'.
+            '<input type="text" placeholder="Enter Product price"
+            value="'.$product['price'].'"
+            class="d-inline-block mb-3 products-price-field form-control w-100 rounded"
+            data_id="'.(int) $product['id'].'" />'.
+            '<input type="text" placeholder="Enter Product url"
+            value="'.$product['url'].'"
+            class="d-inline-block products-shopify-url mb-3 form-control w-100 rounded"
+            data_id="'.(int) $product['id'].'" />'.
             '</div>'.
             '</div>';
-
-        }else if($uniqueLabel === 'footer-copyright-text'){
-            $content .= '<input type="text" placeholder="Footer Copyright Text" class="w-100 p-2" id="'.$uniqueLabel.'" value="'.$GLOBALS['user_selected_options'][$uniqueLabel].'" />';
-        }else {
-            $content .= '<select id="'.$uniqueLabel.'" class="w-100 py-1">';
-            foreach($options as $key => $value) {
-                if($uniqueLabel === 'body-font-family' || $uniqueLabel === 'heading-font-family') {
-                    $value = htmlspecialchars($value, ENT_QUOTES);
-                }
-                $content .= '<option id="option-'.$value.'"
-                value="'.$value.'" '.(htmlspecialchars_decode($value, ENT_QUOTES) === preg_replace('/[\\\\]/', '', $GLOBALS['user_selected_options'][$uniqueLabel]) ?
-                'selected' : '').' data-val="'.$GLOBALS['user_selected_options']['body-font-family'].'">'
-                .$key.'</option>';
-            }
-            $content .= '</select>';
         }
-       
-        $content .= '</div>'.
-        '</div>';
-
+        $content .= '</div></div>';
+        
         return $content;
-    }
 
-
-    /* Function to display colors accordion content
-    *** @param string $uniqueLabel A unique string for each colors accordion
-    *** @param string $title The title of the accordion
-    *** @param string $description The description of the accordion
-    *** @param array $options Array of the available options of colors ***/
-
-    function automate_life_colors_accordion($uniqueLabel, $title, $description, $options) {
-        $content = '<div class="d-flex align-items-center accordion-body-content border rounded-3 mb-3 dropdown-accordion-wrapper">'.
-        '<div class="p-4 border-end flex-grow-1 w-50">'.
-        '<label for="'.$uniqueLabel.'" class="fs-6">'.$title.'</label>'.
-        '<p class="mb-1 fw-light para-color">'.$description.'</p>'.
-        '</div>'.
-        '<div class="p-4 flex-grow-1 w-50">'.
-
-        // Wrapper div
-        '<div class="color-picker-wrapper position-relative">'.
-        // Colors input
-        '<div class="color-picker-input border p-2 rounded">'.
-        '<input type="setting" id="'.$uniqueLabel.'"
-        data-color="'.($GLOBALS['user_selected_options'][$uniqueLabel] !== false ? $GLOBALS['user_selected_options'][$uniqueLabel] : $options['black']).'"
-        class="text-white site-color-picker text-center p-2 w-100" data-parent="'.$uniqueLabel.'"
-        value="'.($GLOBALS['user_selected_options'][$uniqueLabel] !== false ? $GLOBALS['user_selected_options'][$uniqueLabel] : $options['black']).'" style="background:'.($GLOBALS['user_selected_options'][$uniqueLabel] !== false ? $GLOBALS['user_selected_options'][$uniqueLabel] : $options['black']).'" />'.
-        '</div>'.
-        // Colors Dropdown
-        '<div class="color-picker-dropdown position-absolute top-100 d-none w-auto bg-white p-3 shadow-sm border z-1">';
-        foreach($options as $color => $code) {
-            $content .= '<span class="site-color-block rounded d-inline-block cursor-pointer" data-color-code="'.$code.'"
-            data-color-name="'.$color.'" data-parent="'.$uniqueLabel.'"
-            style="background:'.$code.'"></span>';
-        }
-        $content .= '</div>'.
-        '</div>'.
-        '</div>'.
-        '</div>';
-
-        return $content;
-    }
-
-    /* Function to display checkboxes accordion content
-    *** @param string $uniqueLabel A unique string for each checkbox accordion
-    *** @param string $title The title of the accordion
-    *** @param string $description The description of the accordion
-    *** @param string $default A default value ***/
-
-    function automate_life_toggle_box_accordion($uniqueLabel, $title, $description, $default = '') {
-        $content = '<div class="d-flex align-items-center accordion-body-content border rounded-3 mb-3 dropdown-accordion-wrapper">'.
-        '<div class="p-4 border-end flex-grow-1 w-50">'.
-        '<label for="'.$uniqueLabel.'" class="fs-6">'.$title.'</label>'.
-        '<p class="mb-1 fw-light para-color">'.$description.'</p>'.
-        '</div>'.
-        '<div class="p-4 flex-grow-1 w-50">'.
-
-        // Wrapper div
-        '<div class="checkbox-toggle-wrapper gap-3 d-flex align-items-center justify-content-center" data-target="'.$uniqueLabel.'">'.
-        '<button data-parent="'.$uniqueLabel.'" class="bg-transparent border-0 p-0 checkbox-toggler-btn" data-checkbox="0">Disabled</button>'.
-        '<input type="checkbox" class="values-toggle-checkbox" id="'.$uniqueLabel.'" value="'.(intval($GLOBALS['user_selected_options'][$uniqueLabel]) !== false ? intval($GLOBALS['user_selected_options'][$uniqueLabel]) : 0).'" '.(intval($GLOBALS['user_selected_options'][$uniqueLabel]) === 1 ? 'checked' : '').' />'.
-        '<button data-parent="'.$uniqueLabel.'" class="bg-transparent border-0 p-0 checkbox-toggler-btn" data-checkbox="1">Enable</button>'.
-        '</div>'.
-
-        '</div>'.
-        '</div>';
-
-        return $content;   
-    }
-
-    // Social Media Links
-    function automate_life_social_links($uniqueLabel, $title) {
-        $inputValueArr = array();
-        foreach(COMPANY_SOCIALS_URLS as $url) {
-            if(!isset($inputValueArr[$url])) {
-                $inputValueArr[$url] = esc_url(trim(get_option($url))); 
-            }
-        } 
-        $content = '<div '.serialize($inputValueArr).' class="d-flex align-items-center accordion-body-content border rounded-3 mb-3 socials-accordion-wrapper">'.
-        '<div class="p-4 border-end flex-grow-1 w-50">'.
-        '<label for="'.$uniqueLabel.'" class="fs-6">'.$title.'</label>'.
-        '</div>'.
-        '<div class="p-4 flex-grow-1 w-50">'.
-        '<input type="text" value="'.(array_key_exists($uniqueLabel, $inputValueArr) && !empty($inputValueArr[$uniqueLabel]) ?
-        $inputValueArr[$uniqueLabel] : '').'" id="'.$uniqueLabel.'" class="'.$uniqueLabel.'
-         text-truncate w-100 p-2 form-control socials-input-box" placeholder="Enter '.$title.' URL" />'.
-        '</div>'.
-        '</div>';
-
-        return $content;
     }

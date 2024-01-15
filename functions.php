@@ -14,15 +14,16 @@ if ( ! defined( '_S_VERSION' ) ) {
 
 if(!defined('company_socials')) {
 	$urls = array(
-		'twitter-social-url', 'facebook-social-url', 'tiktok-social-url', 'youtube-social-url',
-		'pinterest-social-url', 'instagram-social-url',
+		'twitter_option', 'facebook_option', 'tiktok_option', 'youtube_option',
+		'pinterest_option', 'instagram_option',
 	);
 
 	define('COMPANY_SOCIALS_URLS', $urls);
 }
 
-if(!defined('site_layout_space')) {
-	define('site_layout_space', strtolower(get_option('layout-space')));
+if(!defined('SITE_LAYOUT_SPACE')) {
+	$spacing = strtolower(get_option('layout_space_option')) === 'comfortable' ? 'my-5' : 'my-4';
+	define('SITE_LAYOUT_SPACE', $spacing);
 }
 
 /**
@@ -114,6 +115,50 @@ function automate_life_setup() {
 			'flex-height' => true,
 		)
 	);
+
+	if(get_option('automate_life_theme_activated') !== '1') {
+		
+		// Set default options
+		$default_options = array(
+			'change_font_size_option' => '1.125rem',
+			'h1_font_size_option' => '36px',
+			'apply_h1_font_size_to_all_headings_option' => 0,
+			'body_font_option' => 'Arial, sans-serif',
+			'heading_font_option' => 'Arial, sans-serif',
+			'primary_color_option' => '#F97D03',
+			'secondary_color_option' => '#e5e4e4',
+			'accent_color_option' => '#ffffff',
+			'h1_color_option' => '#111111',
+			'apply_h1_color_to_all_headings_option' => 0,
+			'post_meta_display_date_option' => 'both',
+			
+			'change_logo_height_option' => '75px',
+			'display_featured_images_option' => 0,
+			'hide_featured_images_from_small_screens_option' => 0,
+			'footer_copyright_text_option' => '© Copyright Automate Life 2017-' .Date('Y').' All Rights Reserved',
+			'enable_search_bar_option' => 0,
+			'layout_space_option' => 'Comfortable',
+			'display_tag_links_option' => 0,
+			'article_navigation_option' => 0,
+			'twitter_option' => '',
+			'facebook_option' => '',
+			'tiktok_option' => '',
+			'youtube_option' => '',
+			'pinterest_option' => '',
+			'instagram_option' => '',
+			'our_latest_youtube_videos_option' => '',
+		);
+
+		foreach ($default_options as $option_name => $default_value) {
+			// If the option does not exist already then create it
+            if (get_option($option_name) === false) {
+                update_option($option_name, $default_value);
+            }
+        }
+
+		// Mark the theme as activated
+        update_option('automate_life_theme_activated', '1');
+	}
 }
 add_action( 'after_setup_theme', 'automate_life_setup' );
 
@@ -156,7 +201,8 @@ function automate_life_scripts() {
 	wp_enqueue_style( 'automate-life-style', get_stylesheet_uri(), array(), _S_VERSION );
 	wp_style_add_data( 'automate-life-style', 'rtl', 'replace' );
 	wp_enqueue_style( 'automate-life-bootstrap-style', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css', array(), '5.3.2', 'all' );
-	wp_enqueue_style( 'automate-life-bootstrap-icons', 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css', array(), '5.3.2', 'all' );
+	wp_enqueue_style( 'automate-life-bootstrap-icons', 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css', array(), '1.11.2', 'all' );
+	wp_enqueue_style( 'automate-life-slick-slider-style', '//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css', array(), '1.8.1', 'all' );
 	wp_enqueue_style( 'automate-life-template-style', get_template_directory_uri() . '/assets/css/style.css', array(), _S_VERSION, 'all' );
 	
 	$styleFilePath = get_template_directory() . '/global-options-styles.css';
@@ -170,8 +216,18 @@ function automate_life_scripts() {
 
 		echo "Warning: The style file 'global-options-styles.css' was not found.";
 	}
+
+	// Enqueue your script
+
+	if (!wp_script_is('jquery', 'queue')) {
+		wp_enqueue_style('automate-life-jquery', '//code.jquery.com/jquery-3.7.1.min.js', array(), '3.7.1', true);
+	}
 	
+	wp_enqueue_script( 'automate-life-slick-slider-js', '//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js', array('jquery'), '1.8.1', true );
 	wp_enqueue_script( 'automate-life-navigation', get_template_directory_uri() . '/js/navigation.js', array(), _S_VERSION, true );
+	wp_enqueue_script( 'automate-life-script-js', get_template_directory_uri() . '/assets/js/user_script.js', array('jquery'), _S_VERSION, true );
+
+	wp_localize_script( 'automate-life-script-js', 'admin_ajax', array('ajax_url' => admin_url('admin-ajax.php')) );
 
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 		wp_enqueue_script( 'comment-reply' );
@@ -191,7 +247,6 @@ function automate_life_admin_scripts() {
 	
 	wp_enqueue_style( 'automate-life-template-style', get_template_directory_uri() . '/assets/css/style.css', array(), _S_VERSION, 'all' );
 	wp_enqueue_style( 'automate-life-bootstrap-icons', 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css', array(), '1.11.2', 'all' );
-	// Enqueue your script
 	wp_enqueue_script('automate-life-script', get_template_directory_uri() . '/assets/js/script.js?unique='.time(), array(), _S_VERSION, true);
 	// Enqueue WordPress Media Script
 	if (!did_action('wp_enqueue_media')) {
@@ -255,120 +310,100 @@ add_action('admin_menu', 'automate_life_add_options_page');
 // AJAX callback
 function automate_life_create_css_callback() {
     $options = isset($_POST['optionsArr']) ? $_POST['optionsArr'] : array();
-	$response = array();
+	$response = array(
+		'response' => 'Records Updated',
+		'status'   => 1,
+	);
+
     // Access values like this
     $optionsArr = array(
-        'base_font_size' => $options['font-size-dropdown'],
-        'h1_font_size' => $options['h1-font-size'],
-        'body_font_family' => $options['body-font-family'],
-        'heading_font_family' => $options['heading-font-family'],
-        'base_logo_height' => $options['change-logo-height'],
-		'apply-to-h1-headings' => $options['apply-to-h1-headings'],
-		'featured-image-size' => $options['featured-image-siz'],
-		'hide-promotion-footer-links' => $options['hide-promotion-footer-links'],
-		'site-primary-color' => $options['site-primary-color'],
-		'site-secondary-color' => $options['site-secondary-color'],
-		'site-accent-color' => $options['site-accent-color'],
-		'site-h1-color' => $options['site-h1-color'],
-		'apply-colors-to-h1-headings' => $options['apply-colors-to-h1-headings'],
-		'display-blog-featured-images' => $options['display-blog-featured-images'],
-		'hide-blog-featured-images-from-small-screen' => $options['hide-blog-featured-images-from-small-screen'],
-		'post-meta-display-date' => $options['post-meta-display-date'],
-		'footer-copyright-text' => $options['footer-copyright-text'],
-		'enable-search-bar' => $options['enable-search-bar'],
-		'display-tag-links' => $options['display-tag-links'],
-		'article-navigation' => $options['article-navigation'],
-		'enable-trellis-comments' => $options['enable-trellis-comments'],
-		'layout-space' => $options['layout-space'],
-		'facebook-social-url' => $options['facebook-social-url'],
-		'instagram-social-url' => $options['instagram-social-url'],
-		'twitter-social-url' => $options['twitter-social-url'],
-		'pinterest-social-url' => $options['pinterest-social-url'],
-		'tiktok-social-url' => $options['tiktok-social-url'],
-		'youtube-social-url' => $options['youtube-social-url'],
+        'change_font_size_option' 		=> sanitize_text_field($options['change_font_size_option']),
+        'h1_font_size_option' 			=> sanitize_text_field($options['h1_font_size_option']),
+        'body_font_option' 				=> sanitize_text_field($options['body_font_option']),
+        'heading_font_option' 			=> sanitize_text_field($options['heading_font_option']),
+        'change_logo_height_option' 	=> sanitize_text_field($options['change_logo_height_option']),
+		'apply_h1_font_size_to_all_headings_option' 	=> sanitize_text_field($options['apply_h1_font_size_to_all_headings_option']),
+		'primary_color_option' 			=> sanitize_text_field($options['primary_color_option']),
+		'secondary_color_option' 			=> sanitize_text_field($options['secondary_color_option']),
+		'accent_color_option' 			=> sanitize_text_field($options['accent_color_option']),
+		'h1_color_option' 				=> sanitize_text_field($options['h1_color_option']),
+		'apply_h1_color_to_all_headings_option' => sanitize_text_field($options['apply_h1_color_to_all_headings_option']),
+		'hide_featured_images_from_small_screens_option' => sanitize_text_field($options['hide_featured_images_from_small_screens_option']),
+		'layout' => sanitize_text_field($options['layout']),
     );
 
-  // Iterate through options and create CSS rules
-$cssContent = '';
+  	// Iterate through options and create CSS rules
+	$cssContent = '';
 
-foreach ($optionsArr as $selector => $value) {
-    if ($selector === 'base_font_size') {
+	foreach ($optionsArr as $selector => $value) {
+    if ($selector === 'change_font_size_option') {
         $cssContent .= "body {\n" .
             "    font-size: $value;\n" .
             "}\n";
-    } else if ($selector === 'body_font_family') {
+    } else if ($selector === 'body_font_option') {
 		$decodedFontFamily = preg_replace('/[\\\\]/', '', $value);
         $cssContent .= "body {\n" .
             "    font-family: $decodedFontFamily;\n" .
             "}\n";
-    } else if ($selector === 'h1_font_size') {
+    } else if ($selector === 'h1_font_size_option') {
         $cssContent .= "h1 {\n" .
             "    font-size: $value;\n" .
             "}\n";
-    } else if ($selector === 'heading_font_family') {
+    } else if ($selector === 'heading_font_option') {
         $decodedHeadingFontFamily = preg_replace('/[\\\\]/', '', $value);
         $cssContent .= "h1, h2, h3, h4, h5, h6 {\n" .
             "    font-family: $decodedHeadingFontFamily;\n" .
             "}\n";
-    } else if ($selector === 'base_logo_height') {
+    } else if ($selector === 'change_logo_height_option') {
         $cssContent .= ".site-logo img, .site-branding img {\n" .
             "    height: $value;\n" .
 			"    object-fit: contain;\n".
             "}\n";
-    } else if ($selector === 'apply-to-h1-headings' && intval($value) === 1) {
-		$h1FontSize = $optionsArr['h1_font_size'];
+    } else if ($selector === 'apply_h1_font_size_to_all_headings_option' && intval($value) === 1) {
+		$h1FontSize = $optionsArr['h1_font_size_option'];
 		$cssContent .= "h1, h2, h3, h4, h5, h6 {\n" .
 			"    font-size: $h1FontSize;\n" .
 			"}\n";
-	}else if ($selector === 'featured-image-size' && intval($value) === 1) {
-		$featuredImageSize = $optionsArr['featured-image-size'];
-        $cssContent .= ".post-thumbnail-wrap {\n" .
-            "    height: $featuredImageSize\n" .
-            "}\n";
-    } else if ($selector === 'hide-promotion-footer-links' && intval($value) === 1) {
-        $cssContent .= ".hidden-footer-promotion {\n" .
-            "    display: none;\n" .
-            "}\n";
-    }else if($selector === 'site-primary-color') {
+	}else if($selector === 'primary_color_option') {
 		$cssContent .= ".bg-primary, button {\n" .
             "    background-color: $value !important;\n" .
             "}\n";
-			$cssContent .= ".text-primary-user, a, .text-link, a[href] {\n" .
-			"    color: $value;\n" .
+			$cssContent .= ".text-primary {\n" .
+			"    color: $value !important;\n" .
 			"}\n";
-	}else if($selector === 'site-secondary-color') {
+	}else if($selector === 'secondary_color_option') {
 		$cssContent .= ".bg-secondary, button {\n" .
             "    background-color: $value !important;\n" .
             "}\n";
 			$cssContent .= ".text-secondary {\n" .
 			"    color: $value !important;\n" .
 			"}\n";
-	}else if($selector === 'site-accent-color') {
+	}else if($selector === 'accent_color_option') {
 		$cssContent .= ".bg-accent, button {\n" .
             "    background-color: $value !important;\n" .
             "}\n";
-			$cssContent .= ".text-accent,a, .text-link, a[href] {\n" .
+			$cssContent .= ".text-accent,a, a[href], .text-link {\n" .
 			"    color: $value;\n" .
 			"}\n";
-	}else if($selector === 'site-h1-color') {
+	}else if($selector === 'h1_color_option') {
 		$cssContent .= ".bg-headings-color {\n" .
             "    background-color: $value !important;\n" .
             "}\n";
 			$cssContent .= ".text-headings-color, h1 {\n" .
 			"    color: $value;\n" .
 			"}\n";
-	}else if($selector === 'apply-colors-to-h1-headings' && intval($value) === 1) {
-		$colorValue = $optionsArr['site-h1-color'];
+	}else if($selector === 'apply_h1_color_to_all_headings_option' && intval($value) === 1) {
+		$colorValue = $optionsArr['h1_color_option'];
 		$cssContent .= "h1, h2, h3, h4, h5, h6 {\n" .
             "    color: $colorValue !important;\n" .
             "}\n";
-	}else if($selector === 'hide-blog-featured-images-from-small-screen') {
+	}else if($selector === 'hide_featured_images_from_small_screens_option') {
 		$cssContent .= "@media (max-width: 575px) {\n".
 			"    .thumbnail-mobile-hidden {\n".
 			"        display: none !important;\n".
 			"    }\n".
 			"}\n";
-	}else if($selector === 'layout-space') {
+	}else if($selector === 'layout') {
 		if($value === 'Comfortable') {
 			$cssContent .= ".layout-space {\n" .
 				"    margin-top: 6px !important;\n" .
@@ -389,27 +424,49 @@ foreach ($optionsArr as $selector => $value) {
     // Save the CSS content to the file
     file_put_contents($cssFilePath, $cssContent);
 
-    // Optionally, enqueue the dynamically generated CSS file in your theme
-    
-    foreach ($optionsArr as $key => $value) {
-		if(in_array($key, ['facebook-social-url','instagram-social-url','twitter-social-url',
-		'tiktok-social-url','pinterest-social-url', 'youtube-social-url']) && !empty($value)) {
-			$filteredValue = filter_var($value, FILTER_VALIDATE_URL);
-			
-			// If the social url is valid
-			if($filteredValue) {
-				update_option($key, $value);
-			}else {
-				$response = array(
-					'response' => 'Please correct the entered urls',
-				);
-			}
-		}else {
-			update_option($key, $value);
-		}
-    }
+	// Save options in database
 
+	foreach($options as $optionName => $value) {
+		// Add validation for URLS
+		if( in_array($optionName, array('twitter_option', 'facebook_option','tiktok_option',
+		'youtube_option', 'pinterest_option', 'instagram_option') ) ) {
+
+			$validatedUrl = filter_var($value, FILTER_VALIDATE_URL);
+			if($validatedUrl === false) {
+				$response = array(
+					'response' => 'One of the entered URL is not valid. Fix Your URLS and try again',
+					'status'   => 0,
+				);
+				break;
+			}
+		}
+
+		// Validate URLS in Youtube Latest Videos Option Field
+		if($optionName === 'our_latest_youtube_videos_option' && !empty($value)) {
+			foreach($value as $video) {
+				$validate_youtube_url = filter_var($video, FILTER_VALIDATE_URL);
+				if($validate_youtube_url === false || is_null($validate_youtube_url)) {
+					$response = array(
+						'response' => 'Please Correct Your Youtube Videos URLs',
+						'status'   => 0,
+					);
+					break;
+				}
+			}
+		}
+	}
+	
+	foreach($options as $optionName => $value) {
+		if($response['status'] === 1) {
+			if($optionName === 'our_latest_youtube_videos_option' && !empty($value)) {
+				$value = serialize($value);
+			}
+
+			update_option($optionName, $value);
+		}
+	}
 	echo json_encode($response);
+	// echo json_encode($optionsArr);
 
     wp_die();
 }
@@ -450,3 +507,276 @@ function automate_life_update_site_logo_callback() {
 
     wp_die();
 }
+
+
+// Remove Products Thumbnail image on remove icon click
+add_action('wp_ajax_remove_product_image', 'remove_product_image_callback');
+add_action('wp_ajax_nopriv_remove_product_image', 'remove_product_image_callback');
+function remove_product_image_callback() {
+	$id = isset($_POST['id']) ? absint($_POST['id']) : 0;
+	$productsData = (!empty(get_option('shopify-products-data')) ?
+	unserialize(get_option('shopify-products-data')) :
+	array());
+
+	foreach ($productsData as $key => $product) {
+		if ($id === absint($product['id'])) {
+            unset($productsData[$key]);
+        }
+    }
+
+	update_option('shopify-products-data', serialize($productsData));
+
+	// Return website url to show the dummy image
+	echo site_url();
+
+	wp_die();
+}
+
+
+
+/**
+ * Recent Articles Section Template
+ */
+
+
+ function automate_life_recent_articles() {
+	$articles = '<section class="container-fluid '.SITE_LAYOUT_SPACE.'">'.
+    '<h2 class="fw-semibold text-capitalize mb-5 text-center">Recent Articles</h2>'.
+    '<div class="row recent-articles">';
+	$articlesArgs = array(
+		'post_type' => 'post',
+		'posts_per_page' => 3,
+	);
+	$articlesPosts = new WP_Query($articlesArgs);
+	
+	if($articlesPosts->have_posts()) {
+		while($articlesPosts->have_posts()) {
+			$articlesPosts->the_post();
+
+			$articleContent = strlen(trim(strip_tags(get_the_content()))) < 150 ? trim(strip_tags(get_the_content())) : substr(trim(strip_tags(get_the_content())), 0, 150) . '...';
+
+			$articles .= '<div class="col-12 col-md-4 mb-4 mb-lg-0">'.
+			'<div class="post-card">'.
+			'<a href="'.get_the_permalink().'" class="post-thumbnail d-flex justify-content-center mb-4">';
+			
+			if (has_post_thumbnail()) {
+				$thumbnail_url = get_the_post_thumbnail_url();
+				$articles .= '<img
+				data-src="' . esc_url($thumbnail_url) . '"
+				alt="' . get_the_title() . '"
+				loading="lazy"
+				class="img-fluid rounded-4"/>';
+			} else {
+				$dummy_image_url = esc_url(site_url('/wp-content/themes/automate-life/assets/images/dummy-post-thumbnail.webp'));
+				$articles .= '<img
+				data-src="' . $dummy_image_url . '"
+				alt="' . get_the_title() . '"
+				loading="lazy"
+				class="img-fluid rounded-4"/>';
+			}
+			
+			$articles .= '</a>'.
+			'<div class="post-content px-3">'.
+			'<h3 class="text-center text-capitalize">'.
+			'<a href="'.get_the_permalink().'" class="text-decoration-none fw-semibol fs-3 text-dark">'.get_the_title().'</a>'.
+            '</h3>'.
+			'<p class="text-center">'.$articleContent.'</p>'.
+            '<div class="d-flex align-items-center justify-content-center">'.
+            '<a type="button" href="'.get_the_permalink().'" class="py-2 px-4 text-decoration-none bg-primary text-capitalize text-center rounded-circle-px">Read More</a>'.
+            '</div>'.
+            '</div>'.
+            '</div>'. 
+            '</div>';
+		}
+		wp_reset_postdata();
+	}else {
+		$articles .= '<p class="lead text-capitalize">Sorry No posts found</p>';
+	}
+    
+	$articles .= '<div>'.
+	'</section>';
+
+	echo $articles;
+ }
+
+
+ function estimate_reading_time() {
+    // Get the post content
+    $content = get_post_field('post_content', get_the_ID());
+
+    // Count the words in the content
+    $word_count = str_word_count(strip_tags($content));
+
+    // Average reading speed (adjust as needed)
+    $words_per_minute = 200;
+
+    // Calculate estimated reading time in minutes
+	$reading_time_minutes = max(1, ceil($word_count / $words_per_minute));
+
+    // Output the estimated reading time
+    echo '<p class="reading-time m-0 font-md fw-semibold">' . $reading_time_minutes . ' min read</p>';
+}
+
+/**
+ * Load recently viewed post and liked post
+ */
+add_action('wp_ajax_automate_life_recent_and_liked_posts', 'automate_life_recent_and_liked_posts_callback');
+add_action('wp_ajax_nopriv_automate_life_recent_and_liked_posts', 'automate_life_recent_and_liked_posts_callback');
+function automate_life_recent_and_liked_posts_callback() {
+	$layout = isset($_POST['contentLayout']) ? $_POST['contentLayout'] : 'list';
+
+	$recent_blogs_array = array(0);
+	$liked_post_array = array(
+		'post_type' => 'post',
+		'posts_per_page' => -1,
+		'post__in' => array(0),
+	);
+
+	if( isset($_COOKIE['post-recently-viewed']) ) {
+		$id = json_decode($_COOKIE['post-recently-viewed']);
+		$recent_blogs_array = array(
+			'post_type' => 'post',
+			'posts_per_page' => -1,
+			'post__in' => $id,
+		);
+	}
+	if( isset($_COOKIE['liked-posts']) ) {
+		$liked_ids = json_decode($_COOKIE['liked-posts']);
+		$liked_post_array = array(
+			'post_type' => 'post',
+			'posts_per_page' => -1,
+			'post__in' => $liked_ids,
+		);
+	}
+
+	$recent_viewed_html = '';
+	$liked_posts_html = '';
+
+	$recent_viewed_html .= automate_life_cards_layout($recent_blogs_array, $layout);
+
+	$liked_posts_html = automate_life_cards_layout($liked_post_array, $layout);
+
+	echo json_encode(
+		array(
+			'recently_viewed' => $recent_viewed_html,
+			'liked_posts' 	  => $liked_post_array,
+		)
+	);
+
+	wp_die();
+}
+
+
+/**
+ * @param array $array array of post ids
+ */
+
+ function automate_life_cards_layout($array, $layout) {
+
+    $posts = get_posts($array);
+
+    $html = '';
+
+    if(!empty($posts)) {
+		foreach ($posts as $post) {
+			$cat = get_the_category($post->ID);
+			$html .= '<div class="'.( $layout !== 'grid' ? 'd-flex align-items-start justify-content-start mb-4' : 'grid-view-card' ).' gap-3">' .
+				'<a href="' . get_the_permalink($post->ID) . '"
+				class="post-card-thumbnail d-inline-block '.( $layout === 'grid' ? 'w-100' : 'w-50' ).'">';
+		
+			// Check if the post has a thumbnail
+			if (has_post_thumbnail($post->ID)) {
+				$thumbnail_url = get_the_post_thumbnail_url($post->ID);
+				$html .= '<img
+				data-src="' . esc_url($thumbnail_url) . '"
+				alt="' . get_the_title($post->ID) . '"
+				title="'.get_the_title($post->ID).'"
+				loading="lazy"
+				class="img-fluid"/>';
+			}else {
+				$dummy_image_url = esc_url(site_url('/wp-content/themes/automate-life/assets/images/dummy-post-thumbnail.webp'));
+				$html .= '<img
+				data-src="' . $dummy_image_url . '"
+				alt="' . get_the_title($post->ID) . '"
+				loading="lazy"
+				class="img-fluid w-100" width="309" height="193"/>';
+			}
+		
+			$html .= '</a>' .
+				'<div class="card-content '.($layout === 'grid' ? 'w-100 mt-3' : 'w-50').'">' .
+				'<a
+				href="' . get_the_permalink($post->ID) . '"
+				class="text-decoration-none related-post-title mb-2 d-block '.( $layout === 'grid' ? 'text-center fs-5' : 'font-md' ).' ">' . get_the_title($post->ID) . '</a>';
+
+				if( $layout === 'list' ) {
+					foreach ($cat as $index => $c) {
+						if (!is_null($cat)) {
+							$html .= '<a href="' . esc_url(get_category_link($c->term_id)) . '"
+									class="text-dark text-capitalize text-decoration-none font-md post-card-categories">' . esc_html(ucwords($c->name)) . '</a>';
+							if (count($cat) > 0 && $index !== count($cat) - 1) {
+								$html .= ', ';
+							}
+						}
+					}
+				}
+			$html .= '</div>' .
+				'</div>';
+		}		
+    }
+
+    return $html;
+}
+
+// Add Fact checker custom field in post edit screen
+function add_fact_checker_meta_box() {
+    add_meta_box(
+        'fact_checker_meta_box',
+        'Fact Checker',
+        'fact_checker_meta_box_callback',
+        'post', // Change this to the post type you want to add the meta box to
+        'side', // Change this to the context where you want the meta box to appear
+        'default'
+    );
+}
+add_action('add_meta_boxes', 'add_fact_checker_meta_box');
+
+// Callback function to display the meta box content
+function fact_checker_meta_box_callback($post) {
+    // Get the saved fact checker user ID
+    $selected_user_id = get_post_meta($post->ID, '_fact_checker_user', true);
+
+    // Get all user names and IDs
+    $users = get_users();
+    ?>
+    <select name="fact_checker_user" id="fact_checker_user">
+        <option value="">Select a user</option>
+        <?php foreach ($users as $user) : ?>
+			<?php if ($user->display_name !== '') : ?>
+				<option value="<?php echo esc_attr($user->ID); ?>" <?php selected($selected_user_id, $user->ID); ?>>
+					<?php echo esc_html($user->display_name); ?>
+				</option>
+			<?php endif; ?>
+		<?php endforeach; ?>
+    </select>
+    <?php
+    wp_nonce_field('save_fact_checker_meta', 'fact_checker_nonce');
+}
+
+// Save the custom field data when the post is saved
+function save_fact_checker_meta($post_id) {
+    // Check if the current user has permission to save the data
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+
+    // Verify the nonce
+    if (!isset($_POST['fact_checker_nonce']) || !wp_verify_nonce($_POST['fact_checker_nonce'], 'save_fact_checker_meta')) {
+        return;
+    }
+
+    // Save the fact checker user ID
+    if (isset($_POST['fact_checker_user'])) {
+        update_post_meta($post_id, '_fact_checker_user', sanitize_text_field($_POST['fact_checker_user']));
+    }
+}
+add_action('save_post', 'save_fact_checker_meta');

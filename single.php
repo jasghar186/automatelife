@@ -7,10 +7,26 @@
  * @package automate_life
  */
 
+/**
+ * Add Post ID in the cookies
+ */
+if (isset($_COOKIE['post-recently-viewed'])) {
+    $ids = json_decode($_COOKIE['post-recently-viewed'], true);
+    $currentPostID = get_the_ID();
+    if (!in_array($currentPostID, $ids)) {
+        $ids[] = $currentPostID;
+    }
+    setcookie('post-recently-viewed', json_encode($ids), time() + 24*60*60, '/');
+} else {
+    $ids = [get_the_ID()];
+    setcookie('post-recently-viewed', json_encode($ids), time() + 24*60*60, '/');
+}
+
 get_header();
+
 ?>
 
-	<main id="primary" class="site-main">
+	<main id="primary" class="site-main mt-5 pt-3">
 
 		<?php
 		while ( have_posts() ) :
@@ -25,10 +41,6 @@ get_header();
 				)
 			);
 
-			// If comments are open or we have at least one comment, load up the comment template.
-			if ( comments_open() || get_comments_number() ) :
-				comments_template();
-			endif;
 
 		endwhile; // End of the loop.
 		?>
@@ -36,5 +48,4 @@ get_header();
 	</main><!-- #main -->
 
 <?php
-get_sidebar();
 get_footer();

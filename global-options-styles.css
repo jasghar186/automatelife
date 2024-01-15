@@ -2,51 +2,44 @@ body {
     font-size: 1rem;
 }
 h1 {
-    font-size: 56px;
+    font-size: 36px;
 }
 body {
-    font-family: "Open Sans", sans-serif;
+    font-family: Arial, sans-serif;
 }
 h1, h2, h3, h4, h5, h6 {
-    font-family: "Open Sans", sans-serif;
+    font-family: Arial, sans-serif;
 }
 .site-logo img, .site-branding img {
-    height: 100px;
+    height: 75px;
     object-fit: contain;
 }
 .bg-primary, button {
-    background-color: #000000 !important;
+    background-color: #F97D03 !important;
 }
-.text-primary-user, a, .text-link, a[href] {
-    color: #000000;
+.text-primary {
+    color: #F97D03 !important;
 }
 .bg-secondary, button {
-    background-color: #111 !important;
+    background-color: #e5e4e4 !important;
 }
 .text-secondary {
-    color: #111 !important;
+    color: #e5e4e4 !important;
 }
 .bg-accent, button {
-    background-color: #fff !important;
+    background-color: #ffffff !important;
 }
-.text-accent,a, .text-link, a[href] {
-    color: #fff;
+.text-accent,a, a[href], .text-link {
+    color: #ffffff;
 }
 .bg-headings-color {
-    background-color: #111 !important;
+    background-color: #111111 !important;
 }
 .text-headings-color, h1 {
-    color: #111;
-}
-h1, h2, h3, h4, h5, h6 {
-    color: #111 !important;
+    color: #111111;
 }
 @media (max-width: 575px) {
     .thumbnail-mobile-hidden {
         display: none !important;
     }
-}
-.layout-space {
-    margin-top: 24px !important;
-    margin-bottom: 48px !important;
 }

@@ -2,9 +2,114 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap');
 @import './vars';
 
+/** Media Queries   ******************/
+// Extra small devices (portrait phones, less than 576px)
+@mixin xs {
+    @media (max-width: 575.98px) {
+        @content;
+    }
+}
+
+// Small devices (landscape phones, 576px and up)
+@mixin sm {
+    @media (min-width: 576px) {
+        @content;
+    }
+}
+
+// Medium devices (tablets, 768px and up)
+@mixin md {
+    @media (min-width: 768px) {
+        @content;
+    }
+}
+
+// Large devices (desktops, 992px and up)
+@mixin lg {
+    @media (min-width: 992px) {
+        @content;
+    }
+}
+
+// Extra large devices (large desktops, 1200px and up)
+@mixin xl {
+    @media (min-width: 1200px) {
+        @content;
+    }
+}
+
+// Extra large devices (large desktops, 1400px and up)
+@mixin xxl {
+    @media (min-width: 1400px) {
+        @content;
+    }
+}
+
 /** Utility Classes ******************/
 .font-roboto {
     font-family: $fontRoboto;
+}
+
+.font {
+    &-xs {
+        font-size: $fontXSSM;
+    }
+
+    &-sm {
+        font-size: $fontXSSM;
+
+        @include md {
+            font-size: $fontSM;
+        }
+    }
+
+    &-md {
+        font-size: $fontSM;
+
+        @include md {
+            font-size: $fontMD;
+        }
+    }
+
+    &-lg {
+        font-size: $fontMD;
+
+        @include md {
+            font-size: $fontLG;
+        }
+    }
+
+    &-20 {
+        font-size: $fontLG;
+
+        @include lg {
+            font-size: $font20;
+        }
+    }
+
+    &-xl {
+        font-size: $font20;
+
+        @include md {
+            font-size: $fontXL;
+        }
+    }
+
+    &-xxl {
+        font-size: $fontXL;
+
+        @include md {
+            font-size: $fontXXL;
+        }
+    }
+
+    &-30 {
+        font-size: $fontXXL;
+
+        @include md {
+            font-size: $font30;
+        }
+    }
 }
 
 .text-primary-admin {
@@ -43,21 +148,33 @@
     margin-top: 6px;
     margin-bottom: 12px;
 }
+
 .compact-space {
     margin-top: 24px;
     margin-bottom: 48px;
 }
+
 .rounded-circle-px {
     border-radius: 50px;
 }
 
+.cursor-pointer {
+    cursor: pointer;
+}
+
 @import './admin-styles';
+
+.circular-image {
+    border: 1px solid $userPrimaryColor;
+}
 
 
 /** Header Styling ******************/
-.site-logo img, .site-branding img {
+.site-logo img,
+.site-branding img {
     width: 100px;
 }
+
 .header-cta-button {
     border-radius: 50px;
 }
@@ -74,6 +191,11 @@
 .header-search-form {
     & input[type="submit"] {
         display: none;
+    }
+
+    & label,
+    & input[type="search"] {
+        width: 100%;
     }
 
     & input[type="search"],
@@ -124,11 +246,16 @@
 
 /** Front Page Hero Section Styling ******************/
 .hero-section {
-    height: 500px;
-    > .row > div:first-child {
+    height: 590px;
+
+    @include lg {
+        height: 500px;
+    }
+
+    >.row>div:first-child {
         &::before {
             content: '';
-            background: url(../images/home_logo_bulb.png);
+            background: url(../images/home_logo_bulb.webp);
             width: 100%;
             height: 100%;
             position: absolute;
@@ -140,42 +267,275 @@
             transform: scale(1.4);
             pointer-events: none;
             user-select: none;
+            display: none;
+
+            @include lg {
+                display: block;
+            }
         }
     }
-    > .row > div:last-child img {
-        left: -50%;
-        height: 90%;
+
+    >.row>div:last-child img {
+        left: 50%;
+        transform: translateX(-50%);
+        height: 100%;
+
+        @include lg {
+            left: -50%;
+            height: 90%;
+            transform: unset;
+        }
     }
 }
+
+.hero-image-column {
+    height: 50%;
+
+    @include lg {
+        height: 100%;
+    }
+}
+
 .lead-form {
     input[type="email"]:focus {
         outline: none;
     }
+
     input[type="submit"] {
         padding: 14px;
         right: 6px;
     }
 }
 
-.placeholder-white {
-    &::placeholder {
-        color: white;
+.placeholder {
+    &-white {
+        &::placeholder {
+            color: white;
+        }
+    }
+
+    &-black {
+        &::placeholder {
+            color: #111;
+        }
     }
 }
 
-.recent-articles {
-    .post-thumbnail {
-        height: 350px;
-        img {
+.as-seen-on-row {
+    @media (max-width: 575px) {
+        .col {
+            flex: 50%;
+            width: 50%;
+        }
+    }
+}
+
+.category-card {
+    .d-flex.translate-middle-x {
+        bottom: 2.5rem;
+    }
+}
+
+// Affiliated products styling
+.affiliated-products-card {
+    background-color: #E7E6E5;
+}
+
+.product-image-wrapper {
+    height: 200px;
+}
+
+.affiliated-product-content h3 a {
+    font-family: inherit;
+}
+
+// Explore Popular Brands Styling
+.popular_brands_slider {
+    .slick-track {
+        margin: 0 -1rem;
+    }
+
+    .slick-slide {
+        margin: 0 1rem;
+    }
+
+    .slick-list {
+        width: 85%;
+        margin: 0 auto;
+
+        @include md {
+            width: 95%;
+        }
+    }
+
+}
+
+.latest-videos-iframe {
+    @include md {
+        iframe {
             height: 100%;
-            object-fit: cover;
-            width: 70%;
-            border-radius: 0 30px 0 30px;
         }
     }
-    .post-content {
-        h3 {
-            min-height: 67px;
+}
+
+// 404 page styling
+div a.child-category-item {
+    color: #046FCD;
+}
+
+// Single Blog Page Styling
+.toc li>a {
+    transition: all .3s;
+
+    &:hover {
+        color: #1677F0 !important;
+    }
+}
+.post-thumbnail {
+    img {
+        width: 100%;
+    }
+}
+
+.table-of-content-column {
+    max-width: 300px;
+}
+
+.automate-life-breadcrumbs a {
+    color: #1677F0;
+}
+
+.single-blog-header .byline {
+    text-transform: capitalize;
+
+    a {
+        color: #1677F0;
+        text-decoration: none;
+        display: inline-block;
+        margin-left: .3rem;
+        font-size: inherit;
+    }
+}
+
+.posted-date a {
+    color: #111 !important;
+    font-size: inherit;
+    text-decoration: none;
+}
+
+.post-thumbnail .attachment-post-thumbnail {
+    border-radius: .7rem;
+}
+
+// Adjust blog page content as needed
+.blog-content {
+    .wp-block-heading {
+        margin-bottom: 1.5rem;
+        line-height: 2.6rem;
+        font-weight: 500;
+    }
+
+    p {
+        line-height: 40px;
+    }
+
+    .wp-block-image {
+        margin-bottom: 40px;
+    }
+    a[href] {
+        color: #111;
+    }
+}
+
+.blog-social-share {
+
+    &-facebook,
+    &-facebook:hover,
+    &-facebook:focus,
+    &-facebook:active {
+        background-color: #1677F0 !important;
+    }
+
+    &-twitter,
+    &-twitter:hover,
+    &-twitter:focus,
+    &-twitter:active {
+        background-color: #111 !important;
+    }
+
+    &-whatsapp,
+    &-whatsapp:hover,
+    &-whatsapp:focus,
+    &-whatsapp:active {
+        background-color: #0B9606 !important;
+    }
+
+    &-copy,
+    &-copy:hover,
+    &-copy:focus,
+    &-copy:active {
+        background-color: #08BBF1 !important;
+    }
+
+    &-email,
+    &-email:hover,
+    &-email:focus,
+    &-email:active {
+        background-color: #909090 !important;
+    }
+
+    &-share,
+    &-share:hover,
+    &-share:focus,
+    &-share:active {
+        background-color: RGBA(10,38,217,0.68 ) !important;
+    }
+}
+
+.post-card-thumbnail img {
+    width: 100%;
+}
+
+.card-content .related-post-title {
+    color: #1677F0;
+    line-height: 30px;
+}
+
+.grid-view-card {
+    width: 33.3%;
+}
+
+.post-disclaimer {
+    background-color: #F7F7F7;
+}
+
+
+// Footer Styling
+.footer-menu-items-wrapper {
+    >ul {
+        padding: 0;
+        margin: 0;
+    }
+
+    >ul>li {
+        width: 50%;
+        float: left;
+        list-style: none;
+
+        &:not(:last-child) {
+            margin-bottom: .5rem;
+        }
+
+        a {
+            text-decoration: none;
+            text-transform: capitalize;
+            color: #111;
         }
     }
+}
+
+.scroll-back-to-top {
+    right: 60px;
+    bottom: 40px;
+    z-index: 9999;
 }

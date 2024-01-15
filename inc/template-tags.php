@@ -52,6 +52,20 @@ if ( ! function_exists( 'automate_life_posted_by' ) ) :
 	}
 endif;
 
+if ( ! function_exists( 'automate_life_last_revised' ) ):
+	/**
+	 * Prints HTML with meta information for the last revision of the post
+	 */
+	function automate_life_last_revised() {
+		$revised_byline = sprintf(
+			'Last updated %1$s',
+			'<span class="revision-date">' . date_i18n( 'M j, Y', strtotime( get_the_modified_date( 'Y-m-d H:i:s' ) ) ) . '</span>'
+		);
+	
+		echo '<span class="byline d-inline-block font-md text-dark fw-semibold"> ' . $revised_byline . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped	
+	}
+endif;
+
 if ( ! function_exists( 'automate_life_entry_footer' ) ) :
 	/**
 	 * Prints HTML with meta information for the categories, tags and comments.
@@ -133,7 +147,7 @@ if ( ! function_exists( 'automate_life_post_thumbnail' ) ) :
 
 		<?php else : ?>
 
-			<a class="post-thumbnail" href="<?php the_permalink(); ?>" aria-hidden="true" tabindex="-1">
+			<a class="post-thumbnail w-100" href="<?php the_permalink(); ?>" aria-hidden="true" tabindex="-1">
 				<?php
 					the_post_thumbnail(
 						'post-thumbnail',
