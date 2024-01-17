@@ -9,13 +9,13 @@
 ?>
 <article aria-label="sidebar" class="shadow-sm">
     <div class="d-flex justify-content-between gap-2">
-        <span class="cursor-pointer recommended-tab flex-grow-1 text-center blog-sidebar-toggle p-1 bg-primary text-light fs-6" data-target="#recommended-blogs-tab">
+        <span class="cursor-pointer recommended-tab flex-grow-1 text-center blog-sidebar-toggle px-1 py-0 bg-primary text-light fs-6" data-target="#recommended-blogs-tab">
             Recommended
         </span>
-        <span class="cursor-pointer recommended-tab flex-grow-1 text-center blog-sidebar-toggle p-1 bg-secondary fs-6" data-target="#recently-viewed-tab">
+        <span class="cursor-pointer recommended-tab flex-grow-1 text-center blog-sidebar-toggle px-1 py-0 bg-secondary fs-6" data-target="#recently-viewed-tab">
             Recently Viewed
         </span>
-        <span class="cursor-pointer liked-tab flex-grow-1 text-center blog-sidebar-toggle p-1 bg-secondary fs-6" data-target="#liked-blogs-tab">
+        <span class="cursor-pointer liked-tab flex-grow-1 text-center blog-sidebar-toggle px-1 py-0 bg-secondary fs-6" data-target="#liked-blogs-tab">
             Liked
         </span>
         

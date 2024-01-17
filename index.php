@@ -22,12 +22,15 @@ get_header();
 
 			if ( is_home() && ! is_front_page() ) :
 				?>
-				<header>
-					<h1 class="page-title screen-reader-text"><?php single_post_title(); ?></h1>
+				<header class="bg-primary pt-5 pb-5">
+					<h1 class="page-title blog-header-title m-0 text-white fw-bold text-center"><?php single_post_title(); ?></h1>
+					<div class="pb-5 mb-5"></div>
 				</header>
 				<?php
 			endif;
-
+			
+			echo '<div class="container-fluid">';
+			echo '<div class="row mt-5">';
 			/* Start the Loop */
 			while ( have_posts() ) :
 				the_post();
@@ -41,6 +44,9 @@ get_header();
 
 			endwhile;
 
+			echo '</div>';
+			echo '</div>';
+
 			the_posts_navigation();
 
 		else :
@@ -53,5 +59,5 @@ get_header();
 	</main><!-- #main -->
 
 <?php
-get_sidebar();
+// get_sidebar();
 get_footer();

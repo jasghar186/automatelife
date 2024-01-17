@@ -134,19 +134,43 @@ if ( ! function_exists( 'automate_life_post_thumbnail' ) ) :
 	 * element when on single views.
 	 */
 	function automate_life_post_thumbnail() {
-		if ( post_password_required() || is_attachment() || ! has_post_thumbnail() ) {
+		if ( post_password_required() || is_attachment() ) {
 			return;
 		}
 
-		if ( is_singular() ) :
+		if( ! has_post_thumbnail() && ( is_singular( 'post' ) || get_post_type() === 'post' ) ){
+			// If is singular post page and post does not have a featured thumbnail
 			?>
-
-			<div class="post-thumbnail">
-				<?php the_post_thumbnail(); ?>
-			</div><!-- .post-thumbnail -->
-
-		<?php else : ?>
-
+			<a href="<?php the_permalink(); ?>" aria-hidden="true" tab-index="-1"
+			class="post-thumbnail">
+				<img
+				src="<?php echo site_url(); ?>/wp-content/themes/automate-life/assets/images/welcome-banner-automate-life.jpeg"
+				alt="<?php echo get_the_title(); ?>" title="<?php echo get_the_title(); ?>"
+				loading="lazy" width="850" height="900"
+				class="attachment-post-thumbnail size-post-thumbnail wp-post-image img-fluid"/> 
+			</a>
+			<?php
+		}else if( has_post_thumbnail() ) {
+			// If post or page have a featured thumbnail
+			?>
+			<a href="<?php the_permalink(); ?>" aria-hidden="true" tab-index="-1"
+			class="post-thumbnail w-100">
+				<?php
+					the_post_thumbnail(
+						'post-thumbnail',
+						array(
+							'alt' => the_title_attribute(
+								array(
+									'echo' => false,
+								)
+							),
+						)
+					);
+				?>
+			</a><!-- .post-thumbnail -->
+			<?php
+		}else if( ! has_post_thumbnail() && ! is_singular() ) {
+			?>
 			<a class="post-thumbnail w-100" href="<?php the_permalink(); ?>" aria-hidden="true" tabindex="-1">
 				<?php
 					the_post_thumbnail(
@@ -161,9 +185,9 @@ if ( ! function_exists( 'automate_life_post_thumbnail' ) ) :
 					);
 				?>
 			</a>
-
 			<?php
-		endif; // End is_singular().
+		}
+
 	}
 endif;
 
