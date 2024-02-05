@@ -7,6 +7,18 @@
  * @package automate_life
  */
 
+ $pstid = get_the_ID();
+ $all_disliked_posts = array();
+ $all_liked_posts 	 = array();
+
+ global $all_type_posts;
+ if(isset($all_type_posts['liked_posts'])){
+	$all_liked_posts 	= $all_type_posts['liked_posts'];
+ }
+if(isset($all_type_posts['disliked_posts'])){
+	$all_disliked_posts = $all_type_posts['disliked_posts'];
+}
+
 ?>
 
 <article id="post-<?php the_ID(); ?>" <?php post_class('container-fluid'); ?>>
@@ -28,14 +40,14 @@
 						<div class="post-like-dislike d-flex align-items-center justify-content-end">
 							<span class="me-2 font-sm text-dark text-capitalize">Was this helpful?</span>
 							<div class="d-flex align-items-center">
-								<i class="bi bi-hand-thumbs-up 
-								me-2 cursor-pointer user-post-liked"
-								data-liked="1"
-								data-post="<?php echo get_the_ID(); ?>"></i>
-								<i class="bi bi-hand-thumbs-down
-								cursor-pointer user-post-disliked"
+								
+								<span class="me-2 cursor-pointer user-post-liked" data-liked="1" data-post="<?php echo get_the_ID(); ?>"><img class="<?php if (in_array($pstid, $all_liked_posts)) { echo 'custom-text-info'; } ?>" src="<?php echo get_template_directory_uri(); ?>/assets/images/icons-thumbs-up.svg" alt="" srcset=""></span>
+
+								<span class="
+								cursor-pointer user-post-disliked "
 								data-liked="0"
-								data-post="<?php echo get_the_ID(); ?>"></i>
+								data-post="<?php echo get_the_ID(); ?>"><img class="<?php if (in_array($pstid, $all_disliked_posts)) { echo 'custom-text-danger'; } ?>" src="<?php echo get_template_directory_uri(); ?>/assets/images/icons-thumbs-down.svg" alt="" srcset=""></span>
+
 							</div>
 						</div>
 						<button class="text-primary font-sm rounded-1 border p-1">Send Feedback</button>
@@ -160,20 +172,15 @@
 							'icon' => 'bi-copy',
 							'url' => 'javascript:void(0)',
 						),
-						array(
-							'name' => 'share',
-							'icon' => 'bi-share',
-							'url' => 'javascript:void(0)',
-						),
 					);
 
 					foreach($social_share as $index => $social) {
-						echo '<div class="col-6 col-md-4 col-xxl mb-3 mb-xxl-0">'.
+						echo '<div class="col mb-3 mb-xxl-0">'.
 						'<a class="d-inline-block w-100 btn text-white
-						btn-lg text-uppercase fs-6 blog-social-share-'.$social['name'].'"
-						'.($social['name'] !== 'copy' && $social['name'] !== 'share' ? 'target="_blank"' : '').' href="'.$social['url'].'">'.
-						'<i class="bi '.$social['icon'].' me-3 d-inline-block fs-5"></i>'.
-						$social['name'].
+						btn-lg text-uppercase font-md blog-social-share-'.$social['name'].'"
+						'.($social['name'] !== 'copy' && $social['name'] !== 'share' ? 'target="_blank"' : '').'
+						href="'.$social['url'].'">'.
+						'<i class="bi '.$social['icon'].' d-inline-block font-md"></i>'.
 						'</a>'.
 						'</div>';
 					}
@@ -183,7 +190,7 @@
 				</div>
 
 			</div>
-			<div class="col-3">
+			<div class="col-3 blog-sidebar-column">
 				<?php
 					echo automate_life_sidebar_layout('list');
 				?>
@@ -196,7 +203,7 @@
 			<div class="col-6 shadow-sm flex-grow-1">
 					<?php echo automate_life_sidebar_layout('grid'); ?>
 			</div>
-			<div class="col-3"></div>
+			<div class="col-3 blog-sidebar-column"></div>
 		</div>
 
 	<footer class="entry-footer">

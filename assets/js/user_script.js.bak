@@ -66,10 +66,10 @@ jQuery(document).ready(function ($) {
   $('.blog-social-share-copy').click((e) => {
     navigator.clipboard.writeText(decodeURI(window.location.href.toLowerCase()))
       .then(() => {
-        $(e.target).html('<i class="bi bi-check2 d-inline-block fs-5"></i>')
+        $(e.target).html('<i class="bi bi-copy me-3 d-inline-block fs-5"></i> Copied')
 
         setTimeout(() => {
-          $(e.target).html('<i class="bi bi-copy d-inline-block fs-5"></i>')
+          $(e.target).html('<i class="bi bi-copy me-3 d-inline-block fs-5"></i> Copy')
         }, 4000);
       })
       .catch((err) => {
@@ -242,8 +242,8 @@ jQuery(document).ready(function ($) {
     </div>
   </div>`;
 
-    $('body').append(popupHTML)
-    $('#myModal').addClass('show open')
+  $('body').append(popupHTML)
+  $('#myModal').addClass('show open')
 
   })
 
@@ -279,110 +279,115 @@ jQuery(document).ready(function ($) {
   // }
 
 
-  /**************like post  ******************/
+/**************like post  ******************/
 
 
-  $(document).on('click', '.user-post-liked', function (e) {
-    // Get the current post ID
-    var currentpostid = $(this).data('post');
+$(document).on('click', '.user-post-liked', function (e) {
+  // Get the current post ID
+  var currentpostid = $(this).data('post');
 
-    if ($('.user-post-liked > img').hasClass('custom-text-info')) {
-      $('.user-post-liked > img').removeClass('custom-text-info');
-      var likedPosts = getLikedPostsFromCookie();
-      likedPosts = likedPosts.filter(function (id) {
-        return id !== currentpostid;
-      });
-      saveLikedPostsToCookie(likedPosts);
+  if ($('.user-post-liked > img').hasClass('custom-text-info')) {
+    $('.user-post-liked > img').removeClass('custom-text-info');
+    var likedPosts = getLikedPostsFromCookie();
+    likedPosts = likedPosts.filter(function (id) {
+      return id !== currentpostid;
+    });
+    saveLikedPostsToCookie(likedPosts);
 
-    } else {
-      if ($('.user-post-disliked > img').hasClass('custom-text-danger')) {
-        $('.user-post-disliked > img').removeClass('custom-text-danger');
-
-        var dislikedPosts = getdisLikedPostsFromCookie();
-        dislikedPosts = dislikedPosts.filter(function (id) {
-          return id !== currentpostid;
-        });
-        saveDisLikedPostsToCookie(dislikedPosts);
-
-      }
-      $('.user-post-liked > img').addClass('custom-text-info');
-      var likedPosts = getLikedPostsFromCookie();
-      likedPosts.push(currentpostid);
-      saveLikedPostsToCookie(likedPosts);
-    }
-  });
-
-
-  function getLikedPostsFromCookie() {
-    var likedPosts = [];
-    var cookieValue = document.cookie.replace(/(?:(?:^|.*;\s*)liked_posts\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-
-    if (cookieValue) {
-      likedPosts = JSON.parse(cookieValue);
-    }
-    return likedPosts;
-  }
-
-  function saveLikedPostsToCookie(likedPosts) {
-    var cookieValue = JSON.stringify(likedPosts);
-    document.cookie = 'liked_posts=' + cookieValue + '; expires=' + new Date(new Date().getTime() + 365 * 24 * 60 * 60 * 1000 * 10).toUTCString() + '; path=/';
-  }
-
-
-  /***************************dislike post**************/
-
-  $(document).on('click', '.user-post-disliked', function (e) {
-    // Get the current post ID
-    var currentpostid = $(this).data('post');
-
+  } else {
     if ($('.user-post-disliked > img').hasClass('custom-text-danger')) {
       $('.user-post-disliked > img').removeClass('custom-text-danger');
+
       var dislikedPosts = getdisLikedPostsFromCookie();
       dislikedPosts = dislikedPosts.filter(function (id) {
         return id !== currentpostid;
       });
       saveDisLikedPostsToCookie(dislikedPosts);
 
-    } else {
-
-      if ($('.user-post-liked > img').hasClass('custom-text-info')) {
-        $('.user-post-liked > img').removeClass('custom-text-info');
-
-        var likedPosts = getLikedPostsFromCookie();
-        likedPosts = likedPosts.filter(function (id) {
-          return id !== currentpostid;
-        });
-        saveLikedPostsToCookie(likedPosts);
-
-      }
-
-      $('.user-post-disliked > img').addClass('custom-text-danger');
-      var dislikedPosts = getdisLikedPostsFromCookie();
-      dislikedPosts.push(currentpostid);
-      saveDisLikedPostsToCookie(dislikedPosts);
     }
-  });
-
-  function getdisLikedPostsFromCookie() {
-    var dislikedPosts = [];
-    var cookieValue = document.cookie.replace(/(?:(?:^|.*;\s*)disliked_posts\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-
-    if (cookieValue) {
-      dislikedPosts = JSON.parse(cookieValue);
-    }
-    return dislikedPosts;
+    $('.user-post-liked > img').addClass('custom-text-info');
+    var likedPosts = getLikedPostsFromCookie();
+    likedPosts.push(currentpostid);
+    saveLikedPostsToCookie(likedPosts);
   }
+});
 
-  function saveDisLikedPostsToCookie(dislikedPosts) {
-    var cookieValue = JSON.stringify(dislikedPosts);
-    document.cookie = 'disliked_posts=' + cookieValue + '; expires=' + new Date(new Date().getTime() + 365 * 24 * 60 * 60 * 1000 * 10).toUTCString() + '; path=/';
-  }
 
-  /***************show modal after 15 seconds****************/
-  // setTimeout(function () {
-  //   $('#exampleModal').modal('show');
-  // }, 15000);
+function getLikedPostsFromCookie() {
+  var likedPosts = [];
+  var cookieValue = document.cookie.replace(/(?:(?:^|.*;\s*)liked_posts\s*\=\s*([^;]*).*$)|^.*$/, "$1");
   
+  if (cookieValue) {
+    likedPosts = JSON.parse(cookieValue);
+  }
+  return likedPosts;
+}
+
+function saveLikedPostsToCookie(likedPosts) {
+  var cookieValue = JSON.stringify(likedPosts);
+  document.cookie = 'liked_posts=' + cookieValue + '; expires=' + new Date(new Date().getTime() + 365 * 24 * 60 * 60 * 1000 * 10).toUTCString() + '; path=/';
+}
+
+
+/***************************dislike post**************/
+
+$(document).on('click', '.user-post-disliked', function(e){
+  // Get the current post ID
+  var currentpostid = $(this).data('post');
+
+  if ($('.user-post-disliked > img').hasClass('custom-text-danger')) {
+    $('.user-post-disliked > img').removeClass('custom-text-danger');
+    var dislikedPosts = getdisLikedPostsFromCookie();
+    dislikedPosts = dislikedPosts.filter(function (id) {
+      return id !== currentpostid;
+    });
+    saveDisLikedPostsToCookie(dislikedPosts);
+
+  } else {
+
+    if ($('.user-post-liked > img').hasClass('custom-text-info')) {
+      $('.user-post-liked > img').removeClass('custom-text-info');
+
+      var likedPosts = getLikedPostsFromCookie();
+      likedPosts = likedPosts.filter(function (id) {
+        return id !== currentpostid;
+      });
+      saveLikedPostsToCookie(likedPosts);
+
+    }
+
+    $('.user-post-disliked > img').addClass('custom-text-danger');
+    var dislikedPosts = getdisLikedPostsFromCookie();
+    dislikedPosts.push(currentpostid);
+    saveDisLikedPostsToCookie(dislikedPosts);
+  }
+});
+
+function getdisLikedPostsFromCookie() {
+  var dislikedPosts = [];
+  var cookieValue = document.cookie.replace(/(?:(?:^|.*;\s*)disliked_posts\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+  
+  if (cookieValue) {
+    dislikedPosts = JSON.parse(cookieValue);
+  }
+  return dislikedPosts;
+}
+
+function saveDisLikedPostsToCookie(dislikedPosts) {
+  var cookieValue = JSON.stringify(dislikedPosts);
+  document.cookie = 'disliked_posts=' + cookieValue + '; expires=' + new Date(new Date().getTime() + 365 * 24 * 60 * 60 * 1000 * 10).toUTCString() + '; path=/';
+}
+
+/***************show modal after 15 seconds****************/
+	setTimeout(function () {
+      
+      $('#exampleModal').modal('show');
+	  console.log('hjghjgjgj');
+    }, 15000); 
+
+
+
+
 
 });
 

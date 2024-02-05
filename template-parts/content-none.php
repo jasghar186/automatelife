@@ -39,10 +39,19 @@
 			get_search_form();
 
 		else :
-			?>
 
-			<p><?php esc_html_e( 'It seems we can&rsquo;t find what you&rsquo;re looking for. Perhaps searching can help.', 'automate-life' ); ?></p>
+			ob_start();
+			$error_page_url = home_url('/404/');
+			?>
+			<script>
+				jQuery(document).ready(function($) {
+					window.location.href = '<?php echo $error_page_url; ?>';
+				})
+			</script>
 			<?php
+			$error_clean = ob_get_clean();
+			echo $error_clean;
+
 			get_search_form();
 
 		endif;

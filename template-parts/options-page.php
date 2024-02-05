@@ -307,7 +307,7 @@
                 id="'.$id.'_option"
                 value="'.(get_option($id . '_option') !== false ? trim(str_replace(Date('Y'), '{current_year}', get_option($id . '_option'))) : '').'">';
             }else if($field_type === 'textarea') {
-                $value = get_option($id.'_option') !== false ?
+                $value = get_option($id.'_option') !== false && get_option($id . '_option') !== null ?
                 implode("\n", unserialize(get_option($id .'_option'))) :
                 '';
 
@@ -713,6 +713,83 @@
             );
         }
 
+        function products() {
+            $option_name = get_option('shopify_products_option'); 
+            $id = ($option_name ? unserialize($option_name) : array()); // This will return an associate array
+            // echo '<pre>';
+            // print_r($id);
+            // echo '</pre>';
+            $product_content = '<div class="row">';
+
+            for( $i = 0; $i < 3; $i++ ) {
+                $image = wp_get_attachment_url($id[$i]['image']);
+                $title = $id[$i]['title'];
+                $price = $id[$i]['price'];
+                $url   = $id[$i]['url'];
+                $description = $id[$i]['description'];
+
+                $product_content .= '<div class="col-4">'.
+                // Below is the product card layout
+                '<div class="admin-product-card-layout border shadow-sm">'.
+                '<div class="admin-product-image-wrapper cursor-pointer" style="height: 185px;">';
+                if($image) {
+                    $attachment_metadata = wp_get_attachment_metadata($id[$i]['image']);
+                    $alt_text = get_post_meta($id[$i]['image'], '_wp_attachment_image_alt', true);
+                    $attachment_title = get_the_title($id[$i]['image']);
+                    $image_width = isset($attachment_metadata['width']) ? $attachment_metadata['width'] : '';
+                    $image_height = isset($attachment_metadata['height']) ? $attachment_metadata['height'] : '';
+
+                    $product_content .= '<img src="'.esc_url($image).'"
+                    alt="'.$alt_text.'"
+                    title="'.$attachment_title.'"
+                    loading="lazy"
+                    class="img-fluid w-100 h-100 object-fit-contain admin-product-image"
+                    width="'.$image_width.'"
+                    height="'.$image_height.'"
+                    data_attachment_id="'.$id[$i]['image'].'" />';
+                }else {
+                    $product_content .= '<img src="'.site_url().'/wp-content/themes/automate-life/assets/images/dummy_product.webp"
+                    alt="Dummy Product Image" title="Dummy Product Image" loading="lazy" class="img-fluid w-100 h-100 object-fit-contain admin-product-image"
+                    width="185" height="185" data_attachment_id="'.$id[$i]['id'].'" />';
+                }
+                $product_content .= '</div>'.
+                '<div class="admin-product-card-content px-2 pb-3">'.
+                '<label for="admin-product-title-'.$i.'">Product Title</label>'.
+                '<input
+                type="text"
+                id="admin-product-title-'.$i.'"
+                class="form-control p-1 text-truncate mb-2 text-capitalize admin-product-title-input"
+                placeholder="Enter Product Title"
+                value="'.$title.'" />'.
+                '<label for="admin-product-price-'.$i.'">Product Price</label>'.
+                '<input
+                type="text"
+                id="admin-product-price-'.$i.'"
+                class="form-control p-1 text-truncate mb-2 admin-product-price-input"
+                placeholder="Enter Product Price"
+                value="'. number_format($price) .'" />'.
+                '<label for="admin-product-url-'.$i.'">Product URL</label>'.
+                '<input
+                type="url"
+                id="admin-product-url-'.$i.'"
+                class="form-control p-2 mb-2 text-truncate admin-product-url-input"
+                placeholder="Enter Product URL"
+                value="'.$url.'" />'.
+                '<label for="admin-product-description-'.$i.'">Product Description</label>'.
+                '<textarea
+                id="admin-product-description-'.$i.'"
+                class="form-control p-2 admin-product-description-input"
+                placeholder="Enter Product Description"
+                style="min-height:150px;">'. nl2br(htmlspecialchars($description)) .'</textarea>'.
+                '</div>'.
+                '</div>'.
+                '</div>';
+            }
+
+            $product_content .= '</div>';
+
+            return $product_content;
+        }
     }
 
     /*********************************** */
@@ -733,6 +810,7 @@
         $layout = new automate_life_accordion_options('layout', 'display_tab_pane', 'layout');
         $socialLinks = new automate_life_accordion_options('social links', 'display_tab_pane', 'socialLinks');
         $otherCustomizations = new automate_life_accordion_options('Extra Options', 'display_tab_pane', 'otherCustomizations');
+        $products = new automate_life_accordion_options('Shopify Products', 'display_tab_pane', 'products');
 
         $display .= $font_size_typography->accordion_item();
         $display .= $colors->accordion_item();
@@ -742,81 +820,8 @@
         $display .= $layout->accordion_item();
         $display .= $socialLinks->accordion_item();
         $display .= $otherCustomizations->accordion_item();
-        // $display .= $post_meta->accordion_item();
+        $display .= $products->accordion_item();
 
         $display .= '</div>';
         return $display;
-    }
-
-    // Smart Products in stock
-    function automate_life_products_in_stock() {
-        $content = '<div class="border p-3 rounded-3">'.
-        '<h2 class="mb-3">Update products data from below</h2>'.
-        '<div class="row">';
-
-        $GLOBALS['user_selected_options']['shopify-products-data'] = array_reverse($GLOBALS['user_selected_options']['shopify-products-data']);
-        $count = count($GLOBALS['user_selected_options']['shopify-products-data']);
-
-        // Add dummy cards if the count is less than 3
-        if ($count < 3) {
-            $dummyCount = 3 - $count;
-            for ($i = 0; $i < $dummyCount; $i++) {
-                $dummyProduct = array(
-                    'id' => '',
-                    'title' => '',
-                    'description' => '',
-                    'price' => '',
-                    'url' => '',
-                );
-                array_push($GLOBALS['user_selected_options']['shopify-products-data'], $dummyProduct);
-            }
-        }
-        
-        foreach($GLOBALS['user_selected_options']['shopify-products-data'] as $product) {
-            $content .= '<div class="col-12 col-md-4">'.
-            '<div class="admin-product-image-container mb-4 position-relative z-1">';
-            if ($product['id'] !== '') {
-                $attachment_id = $product['id'];
-                $img_url = wp_get_attachment_image_src($attachment_id, 'full');
-                $img_url = $img_url[0]; // The actual URL is at index 0
-                // Get image title
-                $img_title = get_the_title($attachment_id);
-                // Get image alt text
-                $img_alt = get_post_meta($attachment_id, '_wp_attachment_image_alt', true);
-                // Output the image tag
-                $content .= '<img src="' . esc_url($img_url) . '"
-                alt="' . esc_attr($img_alt) . '"
-                title="' . esc_attr($img_title) . '"
-                class="border border-dark rounded-3 img-fluid w-100 h-100 product-thumbnail object-fit-contain" loading="lazy" data_id="'.(int) $attachment_id.'" />';
-            }else {
-                $content .= '<img src="'.site_url().'/wp-content/themes/automate-life/assets/images/dummy_product.webp"
-                class="border border-dark rounded-3 img-fluid w-100 h-100 product-thumbnail object-fit-contain" alt="Dummy Product" loading="lazy" data_id="0" />';
-            }
-            
-            $content .= '<span class="remove-admin-product-image position-absolute top-0 end-0 fs-4 z-3" style="cursor:pointer;">'.
-            '<i class="bi bi-x-circle-fill"></i>'.
-            '</span>';
-            $content .= '</div>'.
-            '<div>'.
-            '<input type="text" placeholder="Enter Product Title" value="'.$product['title'].'"
-            class="d-inline-block products-title-field mb-3 form-control w-100 rounded"
-            data_id="'.(int) $product['id'].'" />'.
-            '<textarea placeholder="Enter Product Description" style="min-height:200px;"
-            value="'.$product['description'].'" class="d-inline-block products-description-field mb-3 form-control w-100 rounded"
-            data_id="'.(int) $product['id'].'">'.(!empty($product['description']) ? htmlspecialchars(strip_tags($product['description'])) : '').'</textarea>'.
-            '<input type="text" placeholder="Enter Product price"
-            value="'.$product['price'].'"
-            class="d-inline-block mb-3 products-price-field form-control w-100 rounded"
-            data_id="'.(int) $product['id'].'" />'.
-            '<input type="text" placeholder="Enter Product url"
-            value="'.$product['url'].'"
-            class="d-inline-block products-shopify-url mb-3 form-control w-100 rounded"
-            data_id="'.(int) $product['id'].'" />'.
-            '</div>'.
-            '</div>';
-        }
-        $content .= '</div></div>';
-        
-        return $content;
-
     }

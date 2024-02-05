@@ -14,20 +14,47 @@
         class="text-dark text-decoration-none font-sm me-2 d-inline-block">Home</a>
         <?php
             // Get category associated with blog
-            $category = get_the_category();
-            $categoryLen = count($category);
+            $categories = get_the_category();
+            $parent_categories = [];
+            $categoryLen = count($categories);
 
-            if($category && $category[$categoryLen - 1]->name !== 'Uncategorized' ) {
-                echo '<span class="separator me-2 text-dark font-sm d-inline-block">&gt;</span>'.
-                '<a
-                class="text-dark text-decoration-none font-sm text-capitalize me-2 d-inline-block"
-                href="'.esc_url(get_category_link($category[$categoryLen - 1]->term_id)).'">
-                '.esc_html($category[$categoryLen - 1]->name).'</a>';
+            if ($categories && !is_wp_error($categories)) {
+
+                // Get only the parent categories
+                foreach( $categories as $index => $category ) {
+                    if( $category->parent === 0 ) {
+                        $category = trim($category->term_id );
+                        if( ! in_array($category, $parent_categories) ) {
+                            $parent_categories[] = $category;
+                        }
+                    }
+                }
+                $parent_categories_count = count($parent_categories);
+                $separator = '<span class="separator me-2 text-dark font-sm d-inline-block">&gt;</span>';
+                
+                foreach ($parent_categories as $index => $category_id) {
+                    $category = get_category($category_id);
+            
+                    if ($index === $parent_categories_count - 1) {
+                        echo $separator;
+                        echo '<a class="text-dark text-decoration-none font-sm text-capitalize me-2 d-inline-block" href="' . esc_url(get_category_link($category->term_id)) . '">';
+                        echo esc_html($category->name);
+                        echo '</a>';
+            
+                        // Check if the last parent category has child categories
+                        $child_categories = get_categories(array('parent' => $category->term_id));
+                        if ($child_categories) {
+                            foreach ($child_categories as $child_category) {
+                                echo $separator;
+                                echo '<a class="text-dark text-decoration-none font-sm text-capitalize me-2 d-inline-block" href="' . esc_url(get_category_link($child_category->term_id)) . '">';
+                                echo esc_html($child_category->name);
+                                echo '</a>';
+                            }
+                        }
+                    }
+                }
             }
-        ?>
-        <span class="separator me-2 text-dark font-sm">&gt;</span>
-        <?php
-        echo '<span class="last text-dark font-sm text-capitalize">'.get_the_title().'</a>';
+
         ?>
     </nav>
 </div>

@@ -50,38 +50,33 @@ jQuery(document).ready(function ($) {
                 optionsArr[$(input).attr('id')] = $(input).val().trim().split('\n')
             }
         })
-                
-        // let productsData = {};
+
+        let productsData = [];
 
         // Loop over products description and store in products data
-        // function create_products_data(id, parameter, value) {
-        //     if (id > 0) {
-        //         if (!productsData[id]) {
-        //             productsData[id] = {};
-        //         }
-        //         productsData[id][parameter] = value;
-        //     }
-        // }
-        // $('.admin-product-image-container').each(function (index, data) {
-        //     let id = parseInt($(data).find('img').attr('data_id'));
-        //     create_products_data(id, 'id', id)
-        // })
-        // $('.products-title-field').each(function (index, field) {
-        //     create_products_data(parseInt($(field).attr('data_id')), 'title', $(field).val().trim())
-        // })
-        // $('.products-description-field').each(function (index, description) {
-        //     create_products_data(parseInt($(description).attr('data_id')), 'description', $(description).val().trim())
-        // })
-        // $('.products-price-field').each(function (index, price) {
-        //     create_products_data(parseInt($(price).attr('data_id')), 'price', parseInt($(price).val().trim()))
-        // })
-        // $('.products-shopify-url').each(function (index, url) {
-        //     create_products_data(parseInt($(url).attr('data_id')), 'url', $(url).val().trim())
-        // })
 
-        // if (Object.keys(productsData).length !== 0) {
-        //     optionsArr['shopify-products-data'] = productsData;
-        // }
+        $('.admin-product-card-layout').each(function (index, card) {
+            let title = $(card).find('.admin-product-title-input').val().trim().toLowerCase();
+            let price = $(card).find('.admin-product-price-input').val().trim().toLowerCase();
+            let url = $(card).find('.admin-product-url-input').val().trim().toLowerCase();
+            let description = $(card).find('.admin-product-description-input').val().trim().toLowerCase().replace('\s', '');
+            let image = $(card).find('.admin-product-image').attr('data_attachment_id')
+
+            productsData.push(
+                {
+                    'id': index,
+                    'image': image,
+                    'title': title,
+                    'price': price,
+                    'url': url,
+                    'description': description,
+                }
+            )
+        })
+
+        if( productsData.length > 0 ) {
+            optionsArr['shopify_products_option'] = productsData;
+        }
 
         console.log('products data', optionsArr);
 
@@ -98,18 +93,18 @@ jQuery(document).ready(function ($) {
                 let res = JSON.parse(response);
                 console.log('res', res)
 
-                if(res.status !== 0) {
+                if (res.status !== 0) {
                     $(saveButton).html(res.response)
                 }
 
-                if(res.status === 0) {
+                if (res.status === 0) {
                     alert(res.response)
                 }
 
                 setTimeout(() => {
                     $(saveButton).html('Save')
                 }, 3000);
-                
+
             },
             error: function (XHR, error, status) {
                 $(saveButton).html('Records Failed To Update' + ' ' + status)
@@ -142,7 +137,7 @@ jQuery(document).ready(function ($) {
 
     // Change Checkboxes values on check, uncheck
     $('.values-toggle-checkbox').change(function (e) {
-        let val = ( parseInt($(this).val()) === 0 ? 1 : 0 )
+        let val = (parseInt($(this).val()) === 0 ? 1 : 0)
         $(this).val(val)
     })
 
@@ -273,50 +268,34 @@ jQuery(document).ready(function ($) {
 
         frame.on('select', function () {
             let attachment = frame.state().get('selection').first().toJSON();
+            console.log($(elem), 'elem')
             $(elem).attr({
                 src: attachment.url,
-                data_id: attachment.id,
+                data_attachment_id: attachment.id,
                 alt: attachment.alt,
                 title: attachment.title,
+                width: attachment.width,
+                height: attachment.height,
             })
 
-            // Add id on products title, description, url and price field
-            $(elem).parents('.col-12').find('.products-title-field').attr('data_id', attachment.id)
-            $(elem).parents('.col-12').find('.products-description-field').attr('data_id', attachment.id)
-            $(elem).parents('.col-12').find('.products-price-field').attr('data_id', attachment.id)
-            $(elem).parents('.col-12').find('.products-shopify-url').attr('data_id', attachment.id)
-
-            console.log(attachment);
+            console.log('attachment' ,attachment);
         });
 
         frame.open();
-
     }
 
-    $('.admin-product-image-container img').click((e) => uploadProductImage(e.target));
+    $('.admin-product-image-wrapper').click((e) => uploadProductImage(e.target));
 
-    // Remove Product Image
-    $('.remove-admin-product-image').click(function () {
-        let targetElem = $(this);
 
-        $.ajax({
-            type: 'POST',
-            url: admin_ajax.ajax_url,
-            data: {
-                id: $(this).parents('.admin-product-image-container').find('img').attr('data_id'),
-                action: 'remove_product_image',
-            },
-            success: function (response) {
-                let container = $(targetElem).parents('.col-12')
-                console.log(container)
-                $(container).find('img.product-thumbnail').attr('src', response + '/wp-content/themes/automate-life/assets/images/dummy_product.webp').attr('data_id', 0);
-                $(container).find('input[type="text"]').val('').attr('data_id', 0)
-                $(container).find('textarea').val('').attr('data_id', 0)
-            },
-            error: function (XHR, error, status) {
-                console.log(status)
-            }
-        })
-    })
+
+
+
+
+
+
+
+
+
+    
 
 });

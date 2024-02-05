@@ -19,7 +19,7 @@ msgid "_s"
 msgstr ""
 
 #. Theme URI of the theme
-msgid "https://underscores.me/"
+msgid "https://hirejunaid.com/"
 msgstr ""
 
 #. Description of the theme

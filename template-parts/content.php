@@ -9,15 +9,27 @@
 
 ?>
 
-<article id="post-<?php the_ID(); ?>" <?php post_class('col col-md-6 col-lg-4'); ?>>
-	<div class="shadow-sm h-100">
+<article id="post-<?php the_ID(); ?>" <?php post_class('col-12 col-md-6 col-lg-4 col-xxl-3 bg-transparent mb-5'); ?>>
+	<div class="blog-post-card hadow-sm h-100 bg-white rounded-4 pb-3 position-relative">
 		<?php automate_life_post_thumbnail(); ?>
 
-		<div class="entry-content mt-5 px-3">
-			<header class="entry-header mt-5 mb-2">
-				<?php the_title( '<a href="'.get_the_permalink().'"
-				class="text-dark text-decoration-none text-capitalize">
-				<h3 class="entry-title fw-light lh-sm font-30 m-0">', '</h3></a>' ); ?>
+		<div class="entry-content mt-5 px-3 pb-5">
+			<header class="entry-header blog-post-title">
+				<a href="<?php the_permalink(); ?>"
+				class="text-dark text-decoration-none d-inline-block text-capitalize">
+					<h3 class="entry-title fw-light lh-sm font-30 m-0">
+						<?php
+						$post_title = trim( strip_tags( get_the_title() ) );
+						// Truncate the title
+						if( str_word_count($post_title) > 7 ) {
+							$truncated_title = explode(' ', $post_title);
+							$truncated_title = array_slice($truncated_title, 0, 7);
+							echo implode(' ', $truncated_title) . '...';
+						}else {
+							echo $post_title;
+						} ?>
+					</h3>
+				</a>
 			</header><!-- .entry-header -->
 
 			<div class="blog-post-content mt-0">
@@ -35,9 +47,9 @@
 				?>
 			</div><!-- .entry-content -->
 
-			<footer class="entry-footer mt-5">
+			<footer class="entry-footer position-absolute" style="bottom:1rem;">
 				<?php
-					echo '<span class="text-capitalize font-md fw-light">By '.get_the_author().'</span>';
+					echo '<span class="text-capitalize font-size-inherit fw-light">By '.get_the_author().'</span>';
 				?>
 			</footer><!-- .entry-footer -->
 		</div>

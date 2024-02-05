@@ -17,6 +17,30 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="profile" href="https://gmpg.org/xfn/11">
 
+	<!-- Canonical URLS -->
+	<?php
+		if( is_front_page() ) {
+			echo '<link rel="canonical" href="'. site_url() .'" />';
+			echo '<meta name="robots" content="index, follow">';
+			echo '<title>'.wp_get_document_title().'</title>';
+		}
+	?>
+	<link rel="icon" href="<?php echo site_url(); ?>/wp-content/themes/automate-life/assets/images/automatelife-32.jpeg" sizes="32x32" />
+	<link rel="icon" href="<?php echo site_url(); ?>/wp-content/themes/automate-life/assets/images/automatelife-192.jpeg" sizes="192x192" />
+	<link rel="apple-touch-icon" href="<?php echo site_url(); ?>/wp-content/themes/automate-life/assets/images/automatelife-180.jpeg" />
+	<?php
+	$meta_description = get_post_meta(get_the_ID(), '_custom_meta_description', true);
+
+	if (!empty($meta_description)) {
+		echo '<meta name="description" content="' . esc_attr($meta_description) . '" />' . "\n";
+	} elseif (has_excerpt()) {
+		echo '<meta name="description" content="' . esc_attr(get_the_excerpt()) . '" />' . "\n";
+	} else {
+		echo '<meta name="description" content="' . esc_attr(wp_kses(wp_trim_words(get_the_content(), 20), 'post')) . '" />' . "\n";
+	}
+
+	?>
+
 	<?php wp_head(); ?>
 </head>
 
@@ -31,6 +55,7 @@ $GLOBALS['desktop-block-breakpoint'] = 'd-lg-block';
 $desktopBreakpoint = 'lg';
 
 ?>
+
 
 <div id="page" class="site">
 	<a class="skip-link screen-reader-text" href="#primary"><?php esc_html_e( 'Skip to content', 'automate-life' ); ?></a>
@@ -71,7 +96,7 @@ $desktopBreakpoint = 'lg';
 				<a type="button"
 				class="header-cta-button text-decoration-none text-uppercase bg-primary py-1 px-3 text-white text-center fw-bold"
 				target="_blank">shop <img src="<?php echo esc_url(site_url()); ?>/wp-content/themes/automate-life/assets/images/header-shop-icon.svg"
-				width="14" height="14" /></a>
+				width="14" height="14" loading="lazy" alt="Shop" class="img-fluid ms-1" /></a>
 			</div>
 			<!-- Header Menu Toggler Icon -->
 			<div class="header-toggle-icon col-7 d-flex <?php echo $GLOBALS['desktop-hidden-breakpoint'] ?> align-items-center justify-content-end">
@@ -84,7 +109,7 @@ $desktopBreakpoint = 'lg';
 			</div>
 		</div>
 
-		<div class="header-bottom d-none <?php echo $GLOBALS['desktop-flex-breakpoint']; ?> align-items-center mt-3 gap-4 pb-3 border-bottom border-dark">
+		<div class="header-bottom d-none <?php echo $GLOBALS['desktop-flex-breakpoint']; ?> align-items-center mt-3 gap-4 border-bottom border-dark">
 			<nav id="site-navigation" class="main-navigation flex-grow-1">
 				<button class="menu-toggle" aria-controls="primary-menu" aria-expanded="false"><?php esc_html_e( 'Primary Menu', 'automate-life' ); ?></button>
 				<?php
@@ -109,3 +134,8 @@ $desktopBreakpoint = 'lg';
 		</div>
 
 	</header><!-- #masthead -->
+
+
+
+	
+

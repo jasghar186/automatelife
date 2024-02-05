@@ -93,6 +93,9 @@
 	</footer><!-- #colophon -->
 </div><!-- #page -->
 
+<?php wp_footer(); ?>
+
+
 
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -103,14 +106,14 @@
 			<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn btn-close position-absolute top-8 end-0 m-3 cursor-pointer custom-close-btn-cls"></button>
 
 			<div class="row">
-				<div class="col-lg-4 p-0"><img src="<?php echo get_template_directory_uri() ?>/assets/images/left-side-popup-img.jpeg" class="h-100 w-100" alt="" srcset=""></div>
-				<div class="col-lg-8 text-center pb-3 pt-4 custom-px position-relative" style="background-image: url('<?php echo get_template_directory_uri() ?>/assets/images/right-sidebg-img.jpeg');">
+				<div class="col-lg-4 p-0"><img src="<?php echo get_template_directory_uri() ?>./assets/images/left-side-popup-img.jpeg" class="h-100 w-100" alt="" srcset=""></div>
+				<div class="col-lg-8 text-center pb-3 pt-4 custom-px position-relative" style="background-image: url('<?php echo get_template_directory_uri() ?>./assets/images/right-sidebg-img.jpeg');">
 				
 					<div class="overlay"></div>
 					<div class="custom-modal-inner-content position-relative" >
-						<img class="w-40 mb-3" src="<?php echo get_template_directory_uri() ?>/assets/images/light_automotive.svg" alt="" srcset="">
+						<img class="w-40 mb-3" src="<?php echo get_template_directory_uri() ?>./assets/images/light_automotive.svg" alt="" srcset="">
 						<h3 class="fs-2 mb-4 custom-font-family">In our monthly news letter you’ll receive</h3>
-						<h2 class="custom-fs fw-bold mb-4 custom-font-family">START LEARNING ABOUT SMART HOMES</h2>
+						<h2 class="custom-fs fw-bold mb-4  custom-font-family">START LEARNING ABOUT SMART HOMES</h2>
 						<p class="fs-2  custom-font-family">News & annoucements</p>
 						<p class="fs-2  custom-font-family">New Aritcles</p>
 						<p class="fs-2 mb-4  custom-font-family">New Releases</p>
@@ -134,7 +137,7 @@
 <!---------- Popup End ------------------------------->
 
 
-<?php wp_footer(); ?>
+
 
 </body>
 </html>

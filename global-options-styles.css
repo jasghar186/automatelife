@@ -17,11 +17,17 @@ h1, h2, h3, h4, h5, h6 {
 .bg-primary, button {
     background-color: #F97D03 !important;
 }
+.border-primary {
+    border-color: #F97D03 !important;
+}
 .text-primary {
     color: #F97D03 !important;
 }
 .bg-secondary, button {
     background-color: #e5e4e4 !important;
+}
+.border-secondary {
+    border-color: #e5e4e4 !important;
 }
 .text-secondary {
     color: #e5e4e4 !important;

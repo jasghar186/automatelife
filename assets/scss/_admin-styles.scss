@@ -129,6 +129,11 @@ input.values-toggle-checkbox {
 }
 
 // Shopify products styling
-.admin-product-image-container {
-    height: 200px;
+.admin-product-image-wrapper {
+    height: 185px;
+    img {
+        height: 100%;
+        width: 100%;
+        object-fit: contain;
+    }
 }

@@ -9,14 +9,9 @@
             <p class="fs-4 text-capitalize m-0">Freelance web designer and developer</p>
 
             <!-- Lead Form -->
-            <form action="#" method="post" class="lead-form position-absolute bottom-0 w-50 d-none d-lg-inline-block">
-                <label for="lead-email" class="w-100 d-block">
-                    <input type="email" name="lead-email" id="lead-email" required
-                    placeholder="Enter Your Email Address" class="bg-primary placeholder-white p-3 rounded-3 w-100 text-light border-0">
-                </label>
-                <input type="submit" value="subscribe"
-                class="bg-white text-dark text-capitalize text-center position-absolute top-50 border-0 translate-middle-y rounded-2">
-            </form>
+            <div class="frontpage-lead-form">
+                <?php echo automate_life_email_recaptcha('dark', 'lead-email'); ?>
+            </div>
             <!-- Lead Form -->
         </div>
         <div class="col-12 col-lg-5 bg-primary position-relative hero-image-column">
@@ -27,21 +22,19 @@
 </section>
 
 <!------------- Mobile Form Section ----------------->
-<section class="container-fluid my-5">
-    <form action="#" method="post" class="lead-form w-100 position-relative d-lg-none">
-        <label for="lead-email" class="w-100 d-block">
-            <input type="email" name="lead-email" id="lead-email"
-            placeholder="Enter Your Email Address" class="bg-primary placeholder-white p-3 rounded-3 w-100 text-light border-0">
-        </label>
-        <input type="submit" value="subscribe"
-        class="bg-white text-dark text-capitalize text-center position-absolute top-50 border-0 translate-middle-y rounded-2">
-    </form>
+<section class="container-fluid my-5 d-lg-none">
+    <?php echo automate_life_email_recaptcha('dark', 'lead-email-mobile'); ?>
 </section>
 
 <!------------- Welcome Section ----------------->
 <section class="container-fluid <?php echo SITE_LAYOUT_SPACE; ?>">
-    <img data-src="<?php echo site_url(); ?>/wp-content/themes/automate-life/assets/images/welcome-banner-automate-life.webp"
-    alt="Welcome To Automate Life" title="Welcome To Automate Life" loading="lazy" class="img-fluid rounded-3 w-100" width="1193" height="745">
+    <img
+    data-src="<?php echo site_url(); ?>/wp-content/themes/automate-life/assets/images/welcome-banner-automate-life.webp"
+    alt="Welcome To Automate Life"
+    title="Welcome To Automate Life"
+    loading="lazy"
+    class="img-fluid rounded-3 w-100"
+    width="1193" height="745">
 </section>
 
 <!------------- As Seen On Section ----------------->
@@ -121,8 +114,13 @@
         foreach($expertsArray as $index => $experts) {
             echo '<div class="col-12 col-md-4 d-flex flex-column align-items-center '. ($index !== count($expertsArray) - 1 ? 'mb-5 pb-3' : '') .' mb-lg-0 pb-lg-0">'.
             '<div class="rounded-image-wrapper">'.
-            '<img data-src="'.site_url().'/wp-content/themes/automate-life/assets/images/'.$experts['image'].'.webp"
-            alt="'.$experts['name'].'" title="'.$experts['name'].'" loading="lazy" />'.
+            '<img
+            data-src="'.site_url().'/wp-content/themes/automate-life/assets/images/'.$experts['image'].'.webp"
+            alt="'.$experts['name'].'"
+            title="'.$experts['name'].'"
+            loading="lazy"
+            width="382"
+            height="395" />'.
             '</div>'.
             '<div class="experts-card-content mt-3">'.
             '<p class="text-center">Hey there! <br /> 
@@ -145,18 +143,18 @@
         $latestVideos = get_option('our_latest_youtube_videos_option') !== false ? unserialize(get_option('our_latest_youtube_videos_option')) : array();
         
         echo '<div class="col-12 col-md-6 mb-5 mb-lg-0 latest-videos-iframe">'.
-        '<iframe width="560" height="315" data-src="' . $latestVideos[0] . '"
+        '<iframe width="560" height="315" data-src="' . (isset($latestVideos[0]) ? $latestVideos[0] : '') . '"
         title="Automated Home" frameborder="0" allow="accelerometer; autoplay; clipboard-write;
         encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"
         class="w-100 rounded-3 rounded-lg-0 flex-grow-1"></iframe>'.
         '</div>';
 
         echo '<div class="col-12 col-md-6 d-flex flex-column">'.
-        '<iframe width="560" height="315" data-src="' . $latestVideos[1] . '"
+        '<iframe width="560" height="315" data-src="' . (isset($latestVideos[1]) ? $latestVideos[1] : '') . '"
         title="Automated Home" frameborder="0" allow="accelerometer; autoplay; clipboard-write;
         encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"
         class="w-100 mb-5 mb-lg-3 rounded-3 rounded-lg-0 flex-grow-1"></iframe>'.
-        '<iframe width="560" height="315" data-src="' . $latestVideos[2] . '"
+        '<iframe width="560" height="315" data-src="' . (isset($latestVideos[2]) ? $latestVideos[2] : '') . '"
         title="Automated Home" frameborder="0" allow="accelerometer; autoplay; clipboard-write;
         encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"
         class="w-100 rounded-3 rounded-lg-0 flex-grow-1"></iframe>'.
@@ -172,44 +170,63 @@
     <div class="row">
 
     <?php 
-    // $smartProducts = get_option('shopify-products-data') !== false ? unserialize(get_option('shopify-products-data')) : array();
-    $smartProducts = array();
+    $smartProducts = get_option('shopify_products_option') !== false ? unserialize(get_option('shopify_products_option')) : array();
     $content = '';
 
-    foreach($smartProducts as $product) {
-        if($product['id'] !== '') {
-            $attachment_id = $product['id'];
-            $img_url = wp_get_attachment_image_src($attachment_id, 'full');
-            $img_url = $img_url[0]; // The actual URL is at index 0
-            // Get image title
-            $img_title = get_the_title($attachment_id);
-            // Get image alt text
-            $img_alt = get_post_meta($attachment_id, '_wp_attachment_image_alt', true);
-            $content .= '<div class="col-12 col-md-4">'.
-            '<div class="affiliated-products-card pt-3 pb-5 rounded-4">'.
-            '<a class="d-inline-block product-image-wrapper d-flex justify-content-center" href="'.$product['id'].'" target="_blank">'.
-            '<img
-            data-src="' . esc_url($img_url) . '"
-            alt="' . esc_attr($img_alt) . '"
-            title="' . esc_attr($img_title) . '"
-            class="img-fluid w-75 h-100 affiliated-product-thumbnail object-fit-cover"
-            loading="lazy" />'.
-            '</a>'.
-            '<div class="affiliated-product-content mt-3 px-2">'.
-            '<h3 class="mb-3 text-center"><a href="'.$product['url'].'" class="text-dark text-capitalize text-left text-decoration-none" target="_blank">'.$product['title'].'</a></h3>'.
-            '<p class="mb-1 text-center">'.$product['description'].'</p>'.
-            '<p class="text-center">Price $ '.(!empty($product['price'] && $product['price'] !== 'NaN') ? number_format(absint($product['price'])) : 'Call for price').'</p>'.
-            '<div class="d-flex align-items-center justify-content-center">'.
-            '<a type="button"
-            class="py-2 px-4 text-decoration-none bg-primary text-capitalize text-center rounded-circle-px mx-auto"
-            href="'.esc_attr($product['url']).'"
-            target="_blank">Click Here</a>'.
-            '</div>'.
-            '</div>'.
-            '</div>'.
-            '</div>';
+    foreach($smartProducts as $index => $product) {
+        $attachment_id = $product['image'];
+        $image_url = wp_get_attachment_url($attachment_id);
 
+        $img_url = wp_get_attachment_image_src($attachment_id, 'full');
+        $img_url = $img_url[0];
+        $img_title = get_the_title($attachment_id);
+        $img_alt = get_post_meta($attachment_id, '_wp_attachment_image_alt', true);
+
+        $content .= '<div class="col-12 col-md-4">'.
+        '<div class="affiliated-products-card pt-3 pb-5 rounded-4">'.
+        '<a class="d-inline-block product-image-wrapper d-flex justify-content-center"
+        href="'. esc_attr($product['id']) .'"
+        target="_blank">';
+        if( $image_url ) {
+            $attachment_metadata = wp_get_attachment_metadata($attachment_id);
+            $alt_text = get_post_meta($attachment_id, '_wp_attachment_image_alt', true);
+            $attachment_title = get_the_title($attachment_id);
+            $image_width = isset($attachment_metadata['width']) ? $attachment_metadata['width'] : '';
+            $image_height = isset($attachment_metadata['height']) ? $attachment_metadata['height'] : '';
+
+            $content .= '<img data-src="'. esc_url($image_url) .'"
+            alt="'.esc_attr($alt_text).'"
+            title="'.esc_attr($attachment_title).'"
+            width="'.esc_attr($image_width).'"
+            height="'.esc_attr($image_height).'"
+            class="img-fluid affiliated-product-thumbnail object-fit-contain w-100 h-100"
+            loading="lazy" />';
+        }else {
+            $content .= '<img data-src="'. site_url() .'/wp-content/themes/automate-life/assets/images/dummy_product.webp"
+            alt="Dummy Product"
+            title="Dummy Product"
+            width="185"
+            height="185"
+            class="img-fluid affiliated-product-thumbnail object-fit-contain w-100 h-100"
+            loading="lazy" />';
         }
+        $content .= '</a>'.
+        '<div class="affiliated-product-content mt-30 px-2">'.
+        '<h4 
+        class="mb-5 pb-1 text-center">
+        <a
+        href="'.esc_url($product['url']).'"
+        class="text-dark text-capitalize text-left text-decoration-none font-30 fw-light"
+        target="_blank">'. wp_trim_words(esc_html($product['title']), 15) .'</a></h3>'.
+        '<div class="d-flex align-items-center justify-content-center">'.
+        '<a type="button"
+        class="py-2 px-5 text-decoration-none bg-primary text-capitalize text-center rounded-circle-px mx-auto"
+        href="'.esc_attr($product['url']).'"
+        target="_blank">Shop now</a>'.
+        '</div>'.
+        '</div>'.
+        '</div>'.
+        '</div>';
     }
 
     echo $content;
@@ -337,8 +354,14 @@
             foreach($popular_brands_arr as $brand) {
                 echo '<div class="popular_brands_slide col-2">'.
                 '<div class="circular-image rounded-circle p-3 d-flex align-items-center justify-content-center">'.
-                '<img data-src="'.site_url().'/wp-content/themes/automate-life/assets/images/'.$brand['url'].'.webp"
-                alt="'.$brand['title'].'" title="'.$brand['title'].'" loading="lazy" width="128" height="128" class="img-fluid" />'.
+                '<img
+                data-src="'.site_url().'/wp-content/themes/automate-life/assets/images/'.$brand['url'].'.webp"
+                alt="'.$brand['title'].'"
+                title="'.$brand['title'].'"
+                loading="lazy"
+                width="128"
+                height="128"
+                class="img-fluid" />'.
                 '</div>'.
                 '</div>';
             }
@@ -391,8 +414,14 @@
 
             echo  '<div class="col-12 col-md-6 mb-4 category-card">'.
             '<div class="post-thumbnail position-relative">'.
-            '<img data-src="'.site_url().'/wp-content/themes/automate-life/assets/images/'.$image.'.webp"
-            alt="'.esc_attr($category->name).'" loading="lazy" class="img-fluid"/>'.
+            '<img
+            data-src="'.site_url().'/wp-content/themes/automate-life/assets/images/'.$image.'.webp"
+            alt="'.esc_attr($category->name).'"
+            title="'.esc_attr($category->name).'"
+            loading="lazy"
+            class="img-fluid"
+            width="581"
+            height="540" />'.
             '<div class="d-flex align-items-center justify-content-center position-absolute translate-middle-x start-50">'.
             '<a type="button" href="'.esc_url(get_category_link($category->term_id)).'"
             class="py-2 px-4 text-decoration-none bg-primary text-capitalize text-center rounded-circle-px">Read More</a>'.

@@ -117,7 +117,32 @@ function automate_life_setup() {
 	);
 
 	if(get_option('automate_life_theme_activated') !== '1') {
-		
+		$shopify_products_arr = array(
+			array(
+				'id' => 0,
+				'image' => 0,
+				'title' => 'dummy product 1',
+				'price' => '99.00',
+				'url'	=> 'https://www.shopify.com',
+				'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+			),
+			array(
+				'id' => 1,
+				'image' => 0,
+				'title' => 'dummy product 2',
+				'price' => '199.00',
+				'url'	=> 'https://www.shopify.com',
+				'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+			),
+			array(
+				'id' => 2,
+				'image' => 0,
+				'title' => 'dummy product 3',
+				'price' => '199.00',
+				'url'	=> 'https://www.shopify.com',
+				'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+			),
+		);
 		// Set default options
 		$default_options = array(
 			'change_font_size_option' => '1.125rem',
@@ -146,7 +171,8 @@ function automate_life_setup() {
 			'youtube_option' => '',
 			'pinterest_option' => '',
 			'instagram_option' => '',
-			'our_latest_youtube_videos_option' => '',
+			'our_latest_youtube_videos_option' => serialize(array()),
+			'shopify_products_option' => serialize($shopify_products_arr),
 		);
 
 		foreach ($default_options as $option_name => $default_value) {
@@ -224,6 +250,14 @@ function automate_life_scripts() {
 	}
 	
 	wp_enqueue_script( 'automate-life-slick-slider-js', '//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js', array('jquery'), '1.8.1', true );
+
+
+	wp_enqueue_script( 'bootstrap-popper-js', 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js', array('jquery'), '1.12.9', true );
+	wp_enqueue_script('automate-life-bootstrap-script-js', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js', array('jquery'), '5.3.2', true);
+
+
+
+
 	wp_enqueue_script( 'automate-life-navigation', get_template_directory_uri() . '/js/navigation.js', array(), _S_VERSION, true );
 	wp_enqueue_script( 'automate-life-script-js', get_template_directory_uri() . '/assets/js/user_script.js', array('jquery'), _S_VERSION, true );
 
@@ -329,7 +363,6 @@ function automate_life_create_css_callback() {
 		'h1_color_option' 				=> sanitize_text_field($options['h1_color_option']),
 		'apply_h1_color_to_all_headings_option' => sanitize_text_field($options['apply_h1_color_to_all_headings_option']),
 		'hide_featured_images_from_small_screens_option' => sanitize_text_field($options['hide_featured_images_from_small_screens_option']),
-		'layout' => sanitize_text_field($options['layout']),
     );
 
   	// Iterate through options and create CSS rules
@@ -368,6 +401,9 @@ function automate_life_create_css_callback() {
 		$cssContent .= ".bg-primary, button {\n" .
             "    background-color: $value !important;\n" .
             "}\n";
+			$cssContent .= ".border-primary {\n" .
+				"    border-color: $value !important;\n" .
+				"}\n";
 			$cssContent .= ".text-primary {\n" .
 			"    color: $value !important;\n" .
 			"}\n";
@@ -375,6 +411,9 @@ function automate_life_create_css_callback() {
 		$cssContent .= ".bg-secondary, button {\n" .
             "    background-color: $value !important;\n" .
             "}\n";
+			$cssContent .= ".border-secondary {\n" .
+				"    border-color: $value !important;\n" .
+				"}\n";
 			$cssContent .= ".text-secondary {\n" .
 			"    color: $value !important;\n" .
 			"}\n";
@@ -403,18 +442,6 @@ function automate_life_create_css_callback() {
 			"        display: none !important;\n".
 			"    }\n".
 			"}\n";
-	}else if($selector === 'layout') {
-		if($value === 'Comfortable') {
-			$cssContent .= ".layout-space {\n" .
-				"    margin-top: 6px !important;\n" .
-				"    margin-bottom: 12px !important;\n" .
-				"}\n";
-		}else if($value === 'Compact'){
-			$cssContent .= ".layout-space {\n" .
-				"    margin-top: 24px !important;\n" .
-				"    margin-bottom: 48px !important;\n" .
-				"}\n";
-		}
 	}
 }
 
@@ -454,11 +481,26 @@ function automate_life_create_css_callback() {
 				}
 			}
 		}
+
+		if($optionName === 'shopify_products_option' && !empty($value)) {
+			foreach($value as $url) {
+				$validate_shopify_url = filter_var($url['url'], FILTER_VALIDATE_URL);
+				if($validate_shopify_url === false || is_null($validate_shopify_url)) {
+					$response = array(
+						'response' => 'Please Correct Your Shopify Products URLs',
+						'status'   => 0,
+					);
+					break;
+				}
+			}
+		}
 	}
 	
 	foreach($options as $optionName => $value) {
 		if($response['status'] === 1) {
 			if($optionName === 'our_latest_youtube_videos_option' && !empty($value)) {
+				$value = serialize($value);
+			}else if($optionName === 'shopify_products_option' && !empty($value)) {
 				$value = serialize($value);
 			}
 
@@ -553,36 +595,44 @@ function remove_product_image_callback() {
 		while($articlesPosts->have_posts()) {
 			$articlesPosts->the_post();
 
-			$articleContent = strlen(trim(strip_tags(get_the_content()))) < 150 ? trim(strip_tags(get_the_content())) : substr(trim(strip_tags(get_the_content())), 0, 150) . '...';
-
 			$articles .= '<div class="col-12 col-md-4 mb-4 mb-lg-0">'.
 			'<div class="post-card">'.
-			'<a href="'.get_the_permalink().'" class="post-thumbnail d-flex justify-content-center mb-4">';
+			'<a href="'.get_the_permalink().'" class="post-thumbnail d-flex justify-content-center mb-30">';
 			
 			if (has_post_thumbnail()) {
 				$thumbnail_url = get_the_post_thumbnail_url();
 				$articles .= '<img
 				data-src="' . esc_url($thumbnail_url) . '"
 				alt="' . get_the_title() . '"
+				title="'. get_the_title() .'"
 				loading="lazy"
-				class="img-fluid rounded-4"/>';
+				class="img-fluid rounded-4"
+				width="382"
+				height="238"
+				/>';
 			} else {
 				$dummy_image_url = esc_url(site_url('/wp-content/themes/automate-life/assets/images/dummy-post-thumbnail.webp'));
 				$articles .= '<img
 				data-src="' . $dummy_image_url . '"
 				alt="' . get_the_title() . '"
 				loading="lazy"
-				class="img-fluid rounded-4"/>';
+				class="img-fluid rounded-4"
+				width="382"
+				height="238"
+				/>';
 			}
 			
 			$articles .= '</a>'.
 			'<div class="post-content px-3">'.
-			'<h3 class="text-center text-capitalize">'.
-			'<a href="'.get_the_permalink().'" class="text-decoration-none fw-semibol fs-3 text-dark">'.get_the_title().'</a>'.
+			'<h3 class="text-center text-capitalize recent-articles-title overflow-hidden">'.
+			'<a href="'.get_the_permalink().'"
+			class="text-decoration-none fw-semibol fs-3 text-dark">'.wp_trim_words(get_the_title(), 7).'</a>'.
             '</h3>'.
-			'<p class="text-center">'.$articleContent.'</p>'.
+			'<p class="text-center recent-articles-description overflow-hidden">'. trim( wp_trim_words(strip_tags(get_the_content()), 35) ) .'</p>'.
             '<div class="d-flex align-items-center justify-content-center">'.
-            '<a type="button" href="'.get_the_permalink().'" class="py-2 px-4 text-decoration-none bg-primary text-capitalize text-center rounded-circle-px">Read More</a>'.
+            '<a type="button"
+			href="'.get_the_permalink().'"
+			class="py-2 px-5 text-decoration-none bg-primary text-capitalize text-center rounded-circle-px">Read More</a>'.
             '</div>'.
             '</div>'.
             '</div>'. 
@@ -780,3 +830,6 @@ function save_fact_checker_meta($post_id) {
     }
 }
 add_action('save_post', 'save_fact_checker_meta');
+
+
+

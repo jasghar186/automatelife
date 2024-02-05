@@ -22,6 +22,15 @@ if (isset($_COOKIE['post-recently-viewed'])) {
     setcookie('post-recently-viewed', json_encode($ids), time() + 24*60*60, '/');
 }
 
+
+$all_type_posts = array();
+if (isset($_COOKIE['liked_posts'])) {
+	$all_type_posts['liked_posts'] = json_decode($_COOKIE['liked_posts']);
+}
+if (isset($_COOKIE['disliked_posts'])) {
+	$all_type_posts['disliked_posts'] = json_decode($_COOKIE['disliked_posts']);
+}
+
 get_header();
 
 ?>
@@ -32,7 +41,7 @@ get_header();
 		while ( have_posts() ) :
 			the_post();
 
-			get_template_part( 'template-parts/content-single', get_post_type() );
+			get_template_part( 'template-parts/content', 'single', $all_type_posts );
 
 			the_post_navigation(
 				array(

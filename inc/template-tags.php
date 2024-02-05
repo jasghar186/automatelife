@@ -201,3 +201,34 @@ if ( ! function_exists( 'wp_body_open' ) ) :
 		do_action( 'wp_body_open' );
 	}
 endif;
+
+if ( ! function_exists( 'automate_life_email_recaptcha' ) ):
+	/**
+	 * Show an email captcha form on page
+	 * @param string $theme color theme for captcha box
+	 * @param string $placement placement of lead form to be used on
+	 * @return string The generated email captcha form
+	 */
+	function automate_life_email_recaptcha($theme = 'light', $placement = '') {
+
+		if( $theme !== 'light' && $theme !== 'dark' ) {
+			return;
+		}
+
+		$form = '<form
+		action="#"
+		method="post"
+		class="lead-form w-100 position-relative">
+		<label for="'.$placement.'" class="w-100 d-block">
+		<input type="email" name="'.$placement.'" id="'.$placement.'" required
+		placeholder="Enter Your Email Address"
+		class="p-3 rounded-3 w-100 border-0 '.($theme === 'dark' ? 'bg-primary text-light placeholder-white' : 'bg-white text-dark placeholder-black').'">
+		</label>
+		<input type="submit" value="subscribe"
+		class="text-capitalize text-center position-absolute top-50 border-0
+		translate-middle-y rounded-2 '.($theme === 'dark' ? 'bg-white text-dark' : 'bg-primary text-light').'">
+		</form>';
+
+		return $form;
+	}
+endif;
